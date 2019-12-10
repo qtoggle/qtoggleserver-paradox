@@ -28,6 +28,7 @@ class PAIPeripheral(Peripheral):
         self._paradox = None
         self._panel_task = None
         self._check_connection_task = None
+        self._retry_connect_task = None
 
         self._properties = {}
 
@@ -90,6 +91,10 @@ class PAIPeripheral(Peripheral):
         if self._panel_task is None:
             return
 
+        if self._retry_connect_task:
+            self._retry_connect_task.cancel()
+            self._retry_connect_task = None
+
         self.debug('disconnecting')
         try:
             self._paradox.disconnect()
@@ -111,6 +116,7 @@ class PAIPeripheral(Peripheral):
             self.debug('disconnected')
 
         self._panel_task = None
+        self._retry_connect_task = None
 
     def is_connected(self):
         if not self._paradox:
@@ -134,8 +140,27 @@ class PAIPeripheral(Peripheral):
 
             await asyncio.sleep(1)
 
+    async def _retry_connect_indefinitely(self):
+        while True:
+            try:
+                self.error('retrying to connect')
+                await self.connect()
+                break
+
+            except asyncio.CancelledError:
+                break
+
+            except Exception as e:
+                self.error('could not connect to panel: %s', e)
+                await asyncio.sleep(5)
+
     async def handle_enable(self):
-        await self.connect()
+        try:
+            await self.connect()
+
+        except Exception as e:
+            self.error('could not connect to panel: %s', e)
+            self._retry_connect_task = asyncio.create_task(self._retry_connect_indefinitely())
 
     async def handle_disable(self):
         await self.disconnect()

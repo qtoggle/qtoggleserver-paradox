@@ -60,9 +60,6 @@ class PAIPeripheral(Peripheral):
 
         return paradox
 
-    def _on_serial_message(self, data):
-        pass
-
     def parse_labels(self):
         for area in self._paradox.storage.data['partition'].values():
             self.debug('detected area id=%s, label=%s', area['id'], json_utils.dumps(area['label']))
@@ -101,6 +98,8 @@ class PAIPeripheral(Peripheral):
             # PAI may raise ConnectionError when disconnecting, so we catch it here and ignore it
             self.error('failed to disconnect from panel: %s', e, exc_info=True)
 
+        self._paradox = None
+
         try:
             await asyncio.wait_for(self._panel_task, timeout=10)
 
@@ -112,6 +111,18 @@ class PAIPeripheral(Peripheral):
             self.debug('disconnected')
 
         self._panel_task = None
+
+    def is_connected(self):
+        if not self._paradox:
+            return False
+
+        if not self._paradox.panel:
+            return False
+
+        if not self._panel_task:
+            return False
+
+        return bool(self._paradox.connection.connected)
 
     async def _check_connection_loop(self):
         while self._panel_task is not None and self.is_enabled():
@@ -180,3 +191,6 @@ class PAIPort(PeripheralPort, ConfigurableMixin, metaclass=ABCMeta):
     @staticmethod
     def make_address(serial_port, serial_baud):
         return '{}:{}'.format(serial_port, serial_baud)  # E.g. "/dev/ttyUSB0:9600"
+
+    async def attr_is_online(self):
+        return self.get_peripheral().is_connected()

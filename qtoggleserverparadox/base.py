@@ -86,6 +86,7 @@ class PAIPeripheral(Peripheral):
         self._check_connection_task = asyncio.create_task(self._check_connection_loop())
 
         self.parse_labels()
+        self.trigger_port_update()
 
     async def disconnect(self):
         if self._panel_task is None:
@@ -104,6 +105,8 @@ class PAIPeripheral(Peripheral):
             self.error('failed to disconnect from panel: %s', e, exc_info=True)
 
         self._paradox = None
+
+        self.trigger_port_update()
 
         try:
             await asyncio.wait_for(self._panel_task, timeout=10)

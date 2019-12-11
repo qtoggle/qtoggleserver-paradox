@@ -18,7 +18,7 @@ class ZonePort(PAIPort, metaclass=ABCMeta):
         return self.get_peripheral().get_property('zone', self.zone, 'label') or 'Zone {}'.format(self.zone)
 
 
-class OpenZonePort(ZonePort):
+class ZoneOpenPort(ZonePort):
     TYPE = 'boolean'
     WRITABLE = False
 
@@ -30,3 +30,17 @@ class OpenZonePort(ZonePort):
     async def read_value(self):
         peripheral = self.get_peripheral()
         return peripheral.get_property('zone', self.zone, 'open')
+
+
+class ZoneAlarmPort(ZonePort):
+    TYPE = 'boolean'
+    WRITABLE = False
+
+    ID = 'alarm'
+
+    async def attr_get_default_display_name(self):
+        return '{} Alarm'.format(self.get_zone_label())
+
+    async def read_value(self):
+        peripheral = self.get_peripheral()
+        return peripheral.get_property('zone', self.zone, 'alarm')

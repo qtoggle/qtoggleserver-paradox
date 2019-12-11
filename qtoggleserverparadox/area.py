@@ -21,7 +21,7 @@ class AreaPort(PAIPort, metaclass=ABCMeta):
         return self.get_peripheral().get_property('partition', self.area, 'label') or 'Area {}'.format(self.area)
 
 
-class ArmedAreaPort(AreaPort):
+class AreaArmedPort(AreaPort):
     TYPE = 'number'
     WRITABLE = True
     CHOICES = [
@@ -74,3 +74,17 @@ class ArmedAreaPort(AreaPort):
 
         except asyncio.TimeoutError:
             raise exceptions.PAITimeout('timeout waiting for armed state')
+
+
+class AreaAlarmPort(AreaPort):
+    TYPE = 'boolean'
+    WRITABLE = False
+
+    ID = 'alarm'
+
+    async def attr_get_default_display_name(self):
+        return '{} Alarm'.format(self.get_area_label())
+
+    async def read_value(self):
+        peripheral = self.get_peripheral()
+        return peripheral.get_property('partition', self.area, 'alarm')

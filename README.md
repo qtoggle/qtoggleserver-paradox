@@ -13,12 +13,22 @@ It provides a set of drivers to control your Paradox alarm with qToggleServer.
 ports = [
     ...
     {
-        driver: "qtoggleserverparadox.area.ArmedAreaPort",
+        driver: "qtoggleserverparadox.area.AreaArmedPort",
         area: 1,
         serial_port: "/dev/ttyUSB0"
     }
     {
-        driver: "qtoggleserverparadox.zone.OpenZonePort",
+        driver: "qtoggleserverparadox.area.AreaAlarmPort",
+        area: 1,
+        serial_port: "/dev/ttyUSB0"
+    }
+    {
+        driver: "qtoggleserverparadox.zone.ZoneOpenPort",
+        zone: 1,
+        serial_port: "/devy/ttyUSB0"
+    } 
+    {
+        driver: "qtoggleserverparadox.zone.ZoneAlarmPort",
         zone: 1,
         serial_port: "/devy/ttyUSB0"
     } 

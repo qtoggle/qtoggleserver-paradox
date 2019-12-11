@@ -27,8 +27,7 @@ class PAIPeripheral(Peripheral):
 
         self._paradox = None
         self._panel_task = None
-        self._check_connection_task = None
-        self._retry_connect_task = None
+        self._check_connection_task = asyncio.create_task(self._check_connection_loop())
 
         self._properties = {}
 
@@ -77,13 +76,16 @@ class PAIPeripheral(Peripheral):
 
     async def connect(self):
         self.debug('connecting to panel')
-        self._paradox = self.make_paradox()
-        if not await self._paradox.connect_async():
+        paradox = self.make_paradox()
+        if not await paradox.connect_async():
             raise exceptions.PAIConnectError()
 
+        self._paradox = paradox
         self.debug('connected to panel')
+        asyncio.create_task(self.handle_connected())
+
+    async def handle_connected(self):
         self._panel_task = asyncio.create_task(self._paradox.async_loop())
-        self._check_connection_task = asyncio.create_task(self._check_connection_loop())
 
         self.parse_labels()
         self.trigger_port_update()
@@ -91,10 +93,6 @@ class PAIPeripheral(Peripheral):
     async def disconnect(self):
         if self._panel_task is None:
             return
-
-        if self._retry_connect_task:
-            self._retry_connect_task.cancel()
-            self._retry_connect_task = None
 
         self.debug('disconnecting')
         try:
@@ -119,7 +117,6 @@ class PAIPeripheral(Peripheral):
             self.debug('disconnected')
 
         self._panel_task = None
-        self._retry_connect_task = None
 
     def is_connected(self):
         if not self._paradox:
@@ -134,39 +131,28 @@ class PAIPeripheral(Peripheral):
         return bool(self._paradox.connection.connected)
 
     async def _check_connection_loop(self):
-        while self._panel_task is not None and self.is_enabled():
-            if not self._paradox.connection.connected:
-                self.error('connection closed, reconnecting')
-                await self.disconnect()
-                asyncio.create_task(self.connect())
-                break
-
-            await asyncio.sleep(1)
-
-    async def _retry_connect_indefinitely(self):
-        while True:
-            try:
-                self.error('retrying to connect')
-                await self.connect()
-                break
-
-            except asyncio.CancelledError:
-                break
-
-            except Exception as e:
-                self.error('could not connect to panel: %s', e)
-                await asyncio.sleep(5)
-
-    async def handle_enable(self):
         try:
-            await self.connect()
+            while True:
+                connected = self._paradox and self._paradox.connection and self._paradox.connection.connected
+                connecting = self._paradox and not connected
+                if self.is_enabled() and not connected and not connecting:
+                    try:
+                        await self.connect()
 
-        except Exception as e:
-            self.error('could not connect to panel: %s', e)
-            self._retry_connect_task = asyncio.create_task(self._retry_connect_indefinitely())
+                    except Exception as e:
+                        self.error('failed to connect: %s', e)
 
-    async def handle_disable(self):
-        await self.disconnect()
+                elif not self.is_enabled() and connected or connecting:
+                    try:
+                        await self.disconnect()
+
+                    except Exception as e:
+                        self.error('failed to disconnect: %s', e)
+
+                await asyncio.sleep(1)
+
+        except asyncio.CancelledError:
+            pass
 
     async def handle_done(self):
         await self.disconnect()

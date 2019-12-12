@@ -1,5 +1,5 @@
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 
 
 setup(
@@ -10,7 +10,7 @@ setup(
     author_email='ccrisan@gmail.com',
     license='Apache 2.0',
 
-    packages=find_packages(),
+    packages=find_namespace_packages(),
 
     # TODO reorganize this once paradox-alarm-interface gets published to PyPI
     install_requires=[

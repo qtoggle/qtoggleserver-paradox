@@ -17,6 +17,12 @@ class ZonePort(PAIPort, metaclass=ABCMeta):
     def get_zone_label(self):
         return self.get_peripheral().get_property('zone', self.zone, 'label') or 'Zone {}'.format(self.zone)
 
+    def get_property(self, name):
+        return self.get_peripheral().get_property('zone', self.zone, name)
+
+    def get_properties(self):
+        return self.get_peripheral().get_properties('zone', self.zone)
+
 
 class ZoneOpenPort(ZonePort):
     TYPE = 'boolean'
@@ -28,8 +34,7 @@ class ZoneOpenPort(ZonePort):
         return '{} Open'.format(self.get_zone_label())
 
     async def read_value(self):
-        peripheral = self.get_peripheral()
-        return peripheral.get_property('zone', self.zone, 'open')
+        return self.get_property('open')
 
 
 class ZoneAlarmPort(ZonePort):
@@ -42,8 +47,7 @@ class ZoneAlarmPort(ZonePort):
         return '{} Alarm'.format(self.get_zone_label())
 
     async def read_value(self):
-        peripheral = self.get_peripheral()
-        return peripheral.get_property('zone', self.zone, 'alarm')
+        return self.get_property('alarm')
 
 
 class ZoneTroublePort(ZonePort):
@@ -56,5 +60,21 @@ class ZoneTroublePort(ZonePort):
         return '{} Trouble'.format(self.get_zone_label())
 
     async def read_value(self):
-        peripheral = self.get_peripheral()
-        return peripheral.get_property('zone', self.zone, 'trouble')
+        for name, value in self.get_properties():
+            if name.endswith('_trouble') and value:
+                return True
+
+        return False
+
+
+class ZoneTamperPort(ZonePort):
+    TYPE = 'boolean'
+    WRITABLE = False
+
+    ID = 'tamper'
+
+    async def attr_get_default_display_name(self):
+        return '{} Tamper'.format(self.get_zone_label())
+
+    async def read_value(self):
+        return self.get_property('tamper')

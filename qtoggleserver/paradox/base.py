@@ -179,6 +179,13 @@ class PAIPeripheral(Peripheral):
         else:
             return self._properties.get(_type, {}).get(_id, {}).get(name)
 
+    def get_properties(self, _type, _id):
+        if _type == 'system':
+            return self._properties.get(_type, {})
+
+        else:
+            return self._properties.get(_type, {}).get(_id, {})
+
     async def set_area_armed_mode(self, area, armed_mode):
         self.debug('area %s: set armed mode to %s', area, armed_mode)
         if not await self._paradox.panel.control_partitions([area], armed_mode):

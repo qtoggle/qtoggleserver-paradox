@@ -39,6 +39,11 @@ ports = [
         zone: 1,
         serial_port: "/devy/ttyUSB0"
     } 
+    {
+        driver: "qtoggleserver.paradox.zone.ZoneTroublePort",
+        zone: 1,
+        serial_port: "/devy/ttyUSB0"
+    } 
     ...
 ]
 ...

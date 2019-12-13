@@ -140,14 +140,14 @@ class PAIPeripheral(Peripheral):
                         await self.connect()
 
                     except Exception as e:
-                        self.error('failed to connect: %s', e)
+                        self.error('failed to connect: %s', e, exc_info=True)
 
                 elif not self.is_enabled() and connected or connecting:
                     try:
                         await self.disconnect()
 
                     except Exception as e:
-                        self.error('failed to disconnect: %s', e)
+                        self.error('failed to disconnect: %s', e, exc_info=True)
 
                 await asyncio.sleep(1)
 

@@ -44,3 +44,17 @@ class ZoneAlarmPort(ZonePort):
     async def read_value(self):
         peripheral = self.get_peripheral()
         return peripheral.get_property('zone', self.zone, 'alarm')
+
+
+class ZoneTroublePort(ZonePort):
+    TYPE = 'boolean'
+    WRITABLE = False
+
+    ID = 'trouble'
+
+    async def attr_get_default_display_name(self):
+        return '{} Trouble'.format(self.get_zone_label())
+
+    async def read_value(self):
+        peripheral = self.get_peripheral()
+        return peripheral.get_property('zone', self.zone, 'trouble')

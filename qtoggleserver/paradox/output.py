@@ -17,6 +17,29 @@ class OutputPort(PAIPort, metaclass=ABCMeta):
     def get_output_label(self):
         return self.get_peripheral().get_property('pgm', self.output, 'label') or 'Output {}'.format(self.output)
 
+    def get_property(self, name):
+        return self.get_peripheral().get_property('pgm', self.output, name)
+
+    def get_properties(self):
+        return self.get_peripheral().get_properties('pgm', self.output)
+
+
+class OutputTroublePort(OutputPort):
+    TYPE = 'boolean'
+    WRITABLE = False
+
+    ID = 'trouble'
+
+    async def attr_get_default_display_name(self):
+        return '{} Trouble'.format(self.get_output_label())
+
+    async def read_value(self):
+        for name, value in self.get_properties():
+            if name.endswith('_trouble') and value:
+                return True
+
+        return False
+
 
 class OutputTamperPort(OutputPort):
     TYPE = 'boolean'
@@ -28,5 +51,4 @@ class OutputTamperPort(OutputPort):
         return '{} Tamper'.format(self.get_output_label())
 
     async def read_value(self):
-        peripheral = self.get_peripheral()
-        return peripheral.get_property('pgm', self.output, 'tamper')
+        return self.get_property('tamper')

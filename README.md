@@ -22,28 +22,56 @@ ports = [
     {
         driver: "qtoggleserver.paradox.area.AreaArmedPort",
         area: 1,
-        serial_port: "/dev/ttyUSB0"
+        serial_port: "/tmp/ttyV0"
     }
     {
         driver: "qtoggleserver.paradox.area.AreaAlarmPort",
         area: 1,
-        serial_port: "/dev/ttyUSB0"
+        serial_port: "/tmp/ttyV0"
     }
+
+    {
+        driver: "qtoggleserver.paradox.output.OutputTroublePort",
+        output: 1,
+        serial_port: "/tmp/ttyV0"
+    }
+    {
+        driver: "qtoggleserver.paradox.output.OutputTamperPort",
+        output: 1,
+        serial_port: "/tmp/ttyV0"
+    }
+
+    {
+        driver: "qtoggleserver.paradox.system.SystemTroublePort",
+        serial_port: "/tmp/ttyV0"
+    }
+
+    {
+        driver: "qtoggleserver.paradox.output.OutputTroublePort",
+        output: 1,
+        serial_port: "/tmp/ttyV0"
+    }
+
     {
         driver: "qtoggleserver.paradox.zone.ZoneOpenPort",
         zone: 1,
-        serial_port: "/devy/ttyUSB0"
-    } 
+        serial_port: "/tmp/ttyV0"
+    }
     {
         driver: "qtoggleserver.paradox.zone.ZoneAlarmPort",
         zone: 1,
-        serial_port: "/devy/ttyUSB0"
-    } 
+        serial_port: "/tmp/ttyV0"
+    }
     {
         driver: "qtoggleserver.paradox.zone.ZoneTroublePort",
         zone: 1,
-        serial_port: "/devy/ttyUSB0"
-    } 
+        serial_port: "/tmp/ttyV0"
+    }
+    {
+        driver: "qtoggleserver.paradox.zone.ZoneTamperPort",
+        zone: 1,
+        serial_port: "/tmp/ttyV0"
+    }
     ...
 ]
 ...

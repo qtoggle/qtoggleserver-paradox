@@ -18,7 +18,13 @@ class AreaPort(PAIPort, metaclass=ABCMeta):
         return 'area{}.{}'.format(self.area, self.ID)
 
     def get_area_label(self):
-        return self.get_peripheral().get_property('partition', self.area, 'label') or 'Area {}'.format(self.area)
+        return self.get_property('label') or 'Area {}'.format(self.area)
+
+    def get_property(self, name):
+        return self.get_peripheral().get_property('partition', self.area, name)
+
+    def get_properties(self):
+        return self.get_peripheral().get_properties('partition', self.area)
 
 
 class AreaArmedPort(AreaPort):
@@ -55,16 +61,14 @@ class AreaArmedPort(AreaPort):
         return '{} Armed'.format(self.get_area_label())
 
     async def read_value(self):
-        peripheral = self.get_peripheral()
-        armed_state = peripheral.get_property('partition', self.area, 'current_state')
+        armed_state = self.get_property('current_state')
         if armed_state == 'pending':
             return None
 
         return self._ARMED_STATE_MAPPING.get(armed_state)
 
     async def _wait_armed_state(self, armed_state):
-        peripheral = self.get_peripheral()
-        while peripheral.get_property('partition', self.area, 'current_state') != armed_state:
+        while self.get_property('current_state') != armed_state:
             await asyncio.sleep(0.5)
 
     async def write_value(self, value):
@@ -86,5 +90,4 @@ class AreaAlarmPort(AreaPort):
         return '{} Alarm'.format(self.get_area_label())
 
     async def read_value(self):
-        peripheral = self.get_peripheral()
-        return peripheral.get_property('partition', self.area, 'alarm')
+        return self.get_property('alarm')

@@ -15,7 +15,7 @@ class OutputPort(PAIPort, metaclass=ABCMeta):
         return 'output{}.{}'.format(self.output, self.ID)
 
     def get_output_label(self):
-        return self.get_peripheral().get_property('pgm', self.output, 'label') or 'Output {}'.format(self.output)
+        return self.get_property('label') or 'Output {}'.format(self.output)
 
     def get_property(self, name):
         return self.get_peripheral().get_property('pgm', self.output, name)
@@ -34,7 +34,7 @@ class OutputTroublePort(OutputPort):
         return '{} Trouble'.format(self.get_output_label())
 
     async def read_value(self):
-        for name, value in self.get_properties():
+        for name, value in self.get_properties().items():
             if name.endswith('_trouble') and value:
                 return True
 

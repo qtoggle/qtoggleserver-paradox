@@ -15,7 +15,7 @@ class ZonePort(PAIPort, metaclass=ABCMeta):
         return 'zone{}.{}'.format(self.zone, self.ID)
 
     def get_zone_label(self):
-        return self.get_peripheral().get_property('zone', self.zone, 'label') or 'Zone {}'.format(self.zone)
+        return self.get_property('label') or 'Zone {}'.format(self.zone)
 
     def get_property(self, name):
         return self.get_peripheral().get_property('zone', self.zone, name)
@@ -60,7 +60,7 @@ class ZoneTroublePort(ZonePort):
         return '{} Trouble'.format(self.get_zone_label())
 
     async def read_value(self):
-        for name, value in self.get_properties():
+        for name, value in self.get_properties().items():
             if name.endswith('_trouble') and value:
                 return True
 

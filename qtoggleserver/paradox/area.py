@@ -77,7 +77,7 @@ class AreaArmedPort(AreaPort):
             await asyncio.wait_for(self._wait_armed_state(self._ARMED_STATE_MAPPING[value]), timeout=self.CMD_TIMEOUT)
 
         except asyncio.TimeoutError:
-            raise exceptions.PAITimeout('timeout waiting for armed state')
+            raise exceptions.PAITimeout('timeout waiting for armed state') from None
 
 
 class AreaAlarmPort(AreaPort):

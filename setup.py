@@ -14,8 +14,7 @@ setup(
 
     # TODO reorganize this once paradox-alarm-interface gets published to PyPI
     install_requires=[
-        'paradox-alarm-interface @ https://github.com/ParadoxAlarmInterface/pai/archive/'
-                '5c983c21fa8b10f009d4b449af290da37b86eb67.tar.gz',
+        'paradox-alarm-interface==1.1.1',
         'require-python-3',
         'construct>=2.9.43',
         'pyserial>=3.4',

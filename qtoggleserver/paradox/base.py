@@ -29,6 +29,8 @@ class PAIPeripheral(Peripheral):
         self._panel_task = None
         self._check_connection_task = asyncio.create_task(self._check_connection_loop())
 
+        ps.subscribe(self.handle_paradox_property_change, 'changes')
+
         self._properties = {}
 
         super().__init__(address, name)
@@ -54,11 +56,8 @@ class PAIPeripheral(Peripheral):
     def make_paradox(self):
         config.SERIAL_PORT = self._serial_port
         config.SERIAL_BAUD = self._serial_baud
-        paradox = Paradox()
 
-        ps.subscribe(self.handle_paradox_property_change, 'changes')
-
-        return paradox
+        return Paradox()
 
     def parse_labels(self):
         for area in self._paradox.storage.data['partition'].values():
@@ -72,15 +71,18 @@ class PAIPeripheral(Peripheral):
 
         for _type, entries in self._paradox.storage.data.items():
             for entry in entries.values():
-                self._properties.setdefault(_type, {}).setdefault(entry['id'], {})['label'] = entry['label']
+                if 'label' in entry:
+                    self._properties.setdefault(_type, {}).setdefault(entry['id'], {})['label'] = entry['label']
 
     async def connect(self):
         self.debug('connecting to panel')
-        paradox = self.make_paradox()
-        if not await paradox.connect_async():
+
+        if not self._paradox:
+            self._paradox = self.make_paradox()
+
+        if not await self._paradox.connect_async():
             raise exceptions.PAIConnectError()
 
-        self._paradox = paradox
         self.debug('connected to panel')
         asyncio.create_task(self.handle_connected())
 
@@ -134,15 +136,14 @@ class PAIPeripheral(Peripheral):
         try:
             while True:
                 connected = self._paradox and self._paradox.connection and self._paradox.connection.connected
-                connecting = self._paradox and not connected
-                if self.is_enabled() and not connected and not connecting:
+                if self.is_enabled() and not connected:
                     try:
                         await self.connect()
 
                     except Exception as e:
                         self.error('failed to connect: %s', e, exc_info=True)
 
-                elif not self.is_enabled() and connected or connecting:
+                elif not self.is_enabled() and connected:
                     try:
                         await self.disconnect()
 

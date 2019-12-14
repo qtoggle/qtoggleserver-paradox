@@ -20,55 +20,55 @@ Install using pip:
 ports = [
     ...
     {
-        driver: "qtoggleserver.paradox.area.AreaArmedPort",
+        driver: "qtoggleserver.paradox.ports.area.AreaArmedPort",
         area: 1,
         serial_port: "/tmp/ttyV0"
     }
     {
-        driver: "qtoggleserver.paradox.area.AreaAlarmPort",
+        driver: "qtoggleserver.paradox.ports.area.AreaAlarmPort",
         area: 1,
         serial_port: "/tmp/ttyV0"
     }
 
     {
-        driver: "qtoggleserver.paradox.output.OutputTroublePort",
+        driver: "qtoggleserver.paradox.ports.output.OutputTroublePort",
         output: 1,
         serial_port: "/tmp/ttyV0"
     }
     {
-        driver: "qtoggleserver.paradox.output.OutputTamperPort",
-        output: 1,
-        serial_port: "/tmp/ttyV0"
-    }
-
-    {
-        driver: "qtoggleserver.paradox.system.SystemTroublePort",
-        serial_port: "/tmp/ttyV0"
-    }
-
-    {
-        driver: "qtoggleserver.paradox.output.OutputTroublePort",
+        driver: "qtoggleserver.paradox.ports.output.OutputTamperPort",
         output: 1,
         serial_port: "/tmp/ttyV0"
     }
 
     {
-        driver: "qtoggleserver.paradox.zone.ZoneOpenPort",
+        driver: "qtoggleserver.paradox.ports.system.SystemTroublePort",
+        serial_port: "/tmp/ttyV0"
+    }
+
+    {
+        driver: "qtoggleserver.paradox.ports.output.OutputTroublePort",
+        output: 1,
+        serial_port: "/tmp/ttyV0"
+    }
+
+    {
+        driver: "qtoggleserver.paradox.ports.zone.ZoneOpenPort",
         zone: 1,
         serial_port: "/tmp/ttyV0"
     }
     {
-        driver: "qtoggleserver.paradox.zone.ZoneAlarmPort",
+        driver: "qtoggleserver.paradox.ports.zone.ZoneAlarmPort",
         zone: 1,
         serial_port: "/tmp/ttyV0"
     }
     {
-        driver: "qtoggleserver.paradox.zone.ZoneTroublePort",
+        driver: "qtoggleserver.paradox.ports.zone.ZoneTroublePort",
         zone: 1,
         serial_port: "/tmp/ttyV0"
     }
     {
-        driver: "qtoggleserver.paradox.zone.ZoneTamperPort",
+        driver: "qtoggleserver.paradox.ports.zone.ZoneTamperPort",
         zone: 1,
         serial_port: "/tmp/ttyV0"
     }

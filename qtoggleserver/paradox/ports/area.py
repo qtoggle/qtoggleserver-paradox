@@ -9,10 +9,10 @@ from .base import PAIPort
 
 
 class AreaPort(PAIPort, metaclass=ABCMeta):
-    def __init__(self, area, serial_port, serial_baud=constants.DEFAULT_SERIAL_BAUD, peripheral_name=None):
+    def __init__(self, area, address, peripheral_name=None):
         self.area = area
 
-        super().__init__(serial_port, serial_baud, peripheral_name=peripheral_name)
+        super().__init__(address, peripheral_name=peripheral_name)
 
     def make_id(self):
         return 'area{}.{}'.format(self.area, self.ID)

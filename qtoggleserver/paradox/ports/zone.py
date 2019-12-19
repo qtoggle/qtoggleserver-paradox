@@ -1,15 +1,14 @@
 
 from abc import ABCMeta
 
-from . import constants
 from .base import PAIPort
 
 
 class ZonePort(PAIPort, metaclass=ABCMeta):
-    def __init__(self, zone, serial_port, serial_baud=constants.DEFAULT_SERIAL_BAUD, peripheral_name=None):
+    def __init__(self, zone, address, peripheral_name=None):
         self.zone = zone
 
-        super().__init__(serial_port, serial_baud, peripheral_name=peripheral_name)
+        super().__init__(address, peripheral_name=peripheral_name)
 
     def make_id(self):
         return 'zone{}.{}'.format(self.zone, self.ID)

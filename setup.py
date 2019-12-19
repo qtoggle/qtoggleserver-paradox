@@ -13,6 +13,10 @@ setup(
     packages=find_namespace_packages(),
 
     install_requires=[
-        'paradox-alarm-interface==1.1.1'
+        'paradox-alarm-interface==1.1.1',
+        'pypubsub>=4.0.3',
+        'pyserial>=3.4',
+        'pyserial-asyncio>=0.4',
+        'requests'
     ]
 )

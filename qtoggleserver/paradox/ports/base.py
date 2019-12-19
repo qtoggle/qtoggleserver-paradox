@@ -20,8 +20,6 @@ class PAIPeripheral(Peripheral):
     logger = logging.getLogger(__name__)
 
     def __init__(self, address, name):
-        self._serial_port, self._serial_baud = self.spit_address(address)
-
         self.setup_config()
         self.setup_logging()
 
@@ -34,10 +32,6 @@ class PAIPeripheral(Peripheral):
         self._properties = {}
 
         super().__init__(address, name)
-
-    @staticmethod
-    def spit_address(address):
-        return address.split(':')
 
     @staticmethod
     def setup_config():
@@ -54,8 +48,32 @@ class PAIPeripheral(Peripheral):
         logging.getLogger('PAI.paradox.lib.async_message_manager').setLevel(logging.CRITICAL)
 
     def make_paradox(self):
-        config.SERIAL_PORT = self._serial_port
-        config.SERIAL_BAUD = self._serial_baud
+        address = self.get_address()
+        parts = address.split(':')
+
+        if parts[0].startswith('/'):  # A serial port, e.g. /dev/ttyUSB0
+            config.CONNECTION_TYPE = 'Serial'
+            config.SERIAL_PORT = parts[0]
+            config.SERIAL_BAUD = constants.DEFAULT_SERIAL_BAUD
+            if len(parts) > 1:
+                config.SERIAL_BAUD = int(parts[1])
+
+            self.debug('using serial connection on %s:%s', config.SERIAL_PORT, config.SERIAL_BAUD)
+
+        else:  # IP connection, e.g. 192.168.1.2:10000:paradox
+            config.CONNECTION_TYPE = 'IP'
+            config.IP_CONNECTION_HOST = parts[0]
+            config.IP_CONNECTION_PORT = constants.DEFAULT_IP_PORT
+            config.IP_CONNECTION_PASSWORD = constants.DEFAULT_IP_PASSWORD
+            if len(parts) > 1:
+                config.IP_CONNECTION_PORT = int(parts[1])
+
+            if len(parts) > 2:
+                config.IP_CONNECTION_PASSWORD = parts[2]
+
+            config.IP_CONNECTION_PASSWORD = config.IP_CONNECTION_PASSWORD.encode()
+
+            self.debug('using IP connection on %s:%s', config.IP_CONNECTION_HOST, config.IP_CONNECTION_PORT)
 
         return Paradox()
 
@@ -207,12 +225,8 @@ class PAIPort(PeripheralPort, ConfigurableMixin, metaclass=ABCMeta):
     PERIPHERAL_CLASS = PAIPeripheral
     CMD_TIMEOUT = 60
 
-    def __init__(self, serial_port, serial_baud, peripheral_name=None):
-        super().__init__(self.make_address(serial_port, serial_baud), peripheral_name)
-
-    @staticmethod
-    def make_address(serial_port, serial_baud):
-        return '{}:{}'.format(serial_port, serial_baud)  # E.g. "/dev/ttyUSB0:9600"
+    def __init__(self, address, peripheral_name=None):
+        super().__init__(address, peripheral_name)
 
     async def attr_is_online(self):
         return self.get_peripheral().is_connected()

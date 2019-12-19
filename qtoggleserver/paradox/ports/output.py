@@ -1,15 +1,14 @@
 
 from abc import ABCMeta
 
-from . import constants
 from .base import PAIPort
 
 
 class OutputPort(PAIPort, metaclass=ABCMeta):
-    def __init__(self, output, serial_port, serial_baud=constants.DEFAULT_SERIAL_BAUD, peripheral_name=None):
+    def __init__(self, output, address, peripheral_name=None):
         self.output = output
 
-        super().__init__(serial_port, serial_baud, peripheral_name=peripheral_name)
+        super().__init__(address, peripheral_name=peripheral_name)
 
     def make_id(self):
         return 'output{}.{}'.format(self.output, self.ID)

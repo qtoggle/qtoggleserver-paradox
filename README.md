@@ -20,57 +20,51 @@ Install using pip:
 ports = [
     ...
     {
-        driver: "qtoggleserver.paradox.ports.area.AreaArmedPort",
-        area: 1,
-        address: "/dev/ttyUSB0"
+        driver = "qtoggleserver.paradox.ports.area.AreaArmedPort"
+        area = 1
+        address = "/dev/ttyUSB0"
     }
     {
-        driver: "qtoggleserver.paradox.ports.area.AreaAlarmPort",
-        area: 1,
-        address: "/dev/ttyUSB0"
-    }
-
-    {
-        driver: "qtoggleserver.paradox.ports.output.OutputTroublePort",
-        output: 1,
-        address: "/dev/ttyUSB0"
-    }
-    {
-        driver: "qtoggleserver.paradox.ports.output.OutputTamperPort",
-        output: 1,
-        address: "/dev/ttyUSB0"
+        driver = "qtoggleserver.paradox.ports.area.AreaAlarmPort"
+        area = 1
+        address = "/dev/ttyUSB0"
     }
 
     {
-        driver: "qtoggleserver.paradox.ports.system.SystemTroublePort",
-        address: "/dev/ttyUSB0"
+        driver = "qtoggleserver.paradox.ports.output.OutputTroublePort"
+        output = 1
+        address = "/dev/ttyUSB0"
+    }
+    {
+        driver = "qtoggleserver.paradox.ports.output.OutputTamperPort"
+        output = 1
+        address = "/dev/ttyUSB0"
     }
 
     {
-        driver: "qtoggleserver.paradox.ports.output.OutputTroublePort",
-        output: 1,
-        address: "/dev/ttyUSB0"
+        driver = "qtoggleserver.paradox.ports.system.SystemTroublePort"
+        address = "/dev/ttyUSB0"
     }
 
     {
-        driver: "qtoggleserver.paradox.ports.zone.ZoneOpenPort",
-        zone: 1,
-        address: "/dev/ttyUSB0"
+        driver = "qtoggleserver.paradox.ports.zone.ZoneOpenPort"
+        zone = 1
+        address = "/dev/ttyUSB0"
     }
     {
-        driver: "qtoggleserver.paradox.ports.zone.ZoneAlarmPort",
-        zone: 1,
-        address: "/dev/ttyUSB0"
+        driver = "qtoggleserver.paradox.ports.zone.ZoneAlarmPort"
+        zone = 1
+        address = "/dev/ttyUSB0"
     }
     {
-        driver: "qtoggleserver.paradox.ports.zone.ZoneTroublePort",
-        zone: 1,
-        address: "/dev/ttyUSB0"
+        driver = "qtoggleserver.paradox.ports.zone.ZoneTroublePort"
+        zone = 1
+        address = "/dev/ttyUSB0"
     }
     {
-        driver: "qtoggleserver.paradox.ports.zone.ZoneTamperPort",
-        zone: 1,
-        address: "/dev/ttyUSB0"
+        driver = "qtoggleserver.paradox.ports.zone.ZoneTamperPort"
+        zone = 1
+        address = "/dev/ttyUSB0"
     }
     ...
 ]

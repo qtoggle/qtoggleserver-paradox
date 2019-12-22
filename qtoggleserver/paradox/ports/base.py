@@ -173,7 +173,7 @@ class PAIPeripheral(Peripheral):
         except asyncio.CancelledError:
             pass
 
-    async def handle_done(self):
+    async def handle_cleanup(self):
         await self.disconnect()
 
     def handle_paradox_property_change(self, change):

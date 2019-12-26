@@ -151,17 +151,23 @@ class PAIPeripheral(Peripheral):
         return bool(self._paradox.connection.connected)
 
     async def _check_connection_loop(self):
+        connect_succeeded = False
+
         try:
             while True:
-                connected = self._paradox and self._paradox.connection and self._paradox.connection.connected
+                connected = (self._paradox and self._paradox.connection and
+                             self._paradox.connection.connected and connect_succeeded)
                 if self.is_enabled() and not connected:
                     try:
                         await self.connect()
+                        connect_succeeded = True
 
                     except Exception as e:
                         self.error('failed to connect: %s', e, exc_info=True)
 
                 elif not self.is_enabled() and connected:
+                    connect_succeeded = False
+
                     try:
                         await self.disconnect()
 

@@ -187,9 +187,17 @@ class PAIPeripheral(Peripheral):
             obj['label'] = info['label']
 
         else:
+            _id = None
             self.debug('property change: %s.%s: %s -> %s', change.type, change.property,
                        json_utils.dumps(change.old_value), json_utils.dumps(change.new_value))
             self._properties.setdefault(change.type, {})[change.property] = change.new_value
+
+        for port in self.get_ports():
+            try:
+                port.on_property_change(change.type, _id, change.property, change.old_value, change.new_value)
+
+            except Exception as e:
+                self.error('property change handler execution failed: %s', e, exc_info=True)
 
     def get_property(self, _type, _id, name):
         if _type == 'system':
@@ -230,3 +238,6 @@ class PAIPort(PeripheralPort, ConfigurableMixin, metaclass=ABCMeta):
 
     async def attr_is_online(self):
         return self.get_peripheral().is_connected()
+
+    def on_property_change(self, _type, _id, _property, old_value, new_value):
+        pass

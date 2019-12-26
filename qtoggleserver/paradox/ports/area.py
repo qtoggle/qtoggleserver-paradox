@@ -36,6 +36,8 @@ class AreaArmedPort(AreaPort):
 
     ID = 'armed'
 
+    _DEFAULT_STATE = 'disarmed'
+
     _ARMED_STATE_MAPPING = {
         'disarmed': 1,
         'armed_away': 2,
@@ -45,6 +47,13 @@ class AreaArmedPort(AreaPort):
         2: 'armed_away',
         3: 'armed_night',
         4: 'armed_home',
+    }
+
+    _OPPOSITE_ARMED_STATE_MAPPING = {
+        'disarmed': 'armed_away',
+        'armed_away': 'disarmed',
+        'armed_night': 'disarmed',
+        'armed_home': 'disarmed'
     }
 
     _ARMED_MODE_MAPPING = {
@@ -57,21 +66,50 @@ class AreaArmedPort(AreaPort):
     def __init__(self, area, address, peripheral_name=None):
         super().__init__(area, address, peripheral_name)
 
-        self._target_value = None  # Used to cache written value while pending
+        self._requested_value = None  # Used to cache written value while pending
+        self._last_state = self.get_property('current_state') or self._DEFAULT_STATE
+        self._pending = False
 
     async def attr_get_default_display_name(self):
         return '{} Armed'.format(self.get_area_label())
 
     async def read_value(self):
-        armed_state = self.get_property('current_state')
-        if armed_state == 'pending':
-            return -self._target_value
+        current_state = self.get_property('current_state')
+        last_state = self._last_state
 
-        return self._ARMED_STATE_MAPPING.get(armed_state)
+        if current_state == last_state:
+            return
+
+        self._last_state = current_state
+        self.debug('current state is now %s', current_state)
+
+        if current_state == 'pending':
+            if self._requested_value is not None:
+                if not self._pending:
+                    self.debug('state %s is pending', self._ARMED_STATE_MAPPING[self._requested_value])
+                    self._pending = True
+
+                return -self._requested_value
+
+            else:
+                # If state becomes pending but we don't have a requested value, it's probably arming/disarming via some
+                # other external means. The best we can do is to indicate the opposite state as pending.
+                opposite_state = self._OPPOSITE_ARMED_STATE_MAPPING[last_state]
+                return -self._ARMED_STATE_MAPPING[opposite_state]
+
+        else:
+            if self._pending:
+                # Reset requested value when pending request is fulfilled
+                self.debug('state %s fulfilled', self._ARMED_STATE_MAPPING[self._requested_value])
+                self._pending = False
+                self._requested_value = None
+
+            return self._ARMED_STATE_MAPPING.get(current_state)
 
     async def write_value(self, value):
         await self.get_peripheral().set_area_armed_mode(self.area, self._ARMED_MODE_MAPPING[value])
-        self._target_value = value
+        self._requested_value = value
+        self._last_state = self._ARMED_STATE_MAPPING[value]
 
 
 class AreaAlarmPort(AreaPort):

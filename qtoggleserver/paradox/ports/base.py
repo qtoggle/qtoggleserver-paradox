@@ -180,6 +180,7 @@ class PAIPeripheral(Peripheral):
             pass
 
     async def handle_cleanup(self):
+        await super().handle_cleanup()
         await self.disconnect()
 
     def handle_paradox_property_change(self, change):

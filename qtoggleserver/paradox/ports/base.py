@@ -223,17 +223,17 @@ class PAIPeripheral(Peripheral):
     async def set_area_armed_mode(self, area, armed_mode):
         self.debug('area %s: set armed mode to %s', area, armed_mode)
         if not await self._paradox.panel.control_partitions([area], armed_mode):
-            raise exceptions.PAICommandError('failed to set area armed mode')
+            raise exceptions.PAICommandError('Failed to set area armed mode')
 
     async def set_zone_bypass(self, zone, bypass):
         self.debug('zone %s: %s bypass', zone, ['clear', 'set'][bypass])
         if not await self._paradox.panel.control_zones([zone], constants.ZONE_BYPASS_MAPPING[bypass]):
-            raise exceptions.PAICommandError('failed to set zone bypass')
+            raise exceptions.PAICommandError('Failed to set zone bypass')
 
     async def set_output_action(self, output, action):
         self.debug('output %s: set action to %s', output, action)
         if not await self._paradox.panel.control_outputs([output], action):
-            raise exceptions.PAICommandError('failed to set output action')
+            raise exceptions.PAICommandError('Failed to set output action')
 
 
 class PAIPort(PeripheralPort, ConfigurableMixin, metaclass=ABCMeta):

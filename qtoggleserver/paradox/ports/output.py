@@ -11,10 +11,10 @@ class OutputPort(PAIPort, metaclass=ABCMeta):
         super().__init__(address, peripheral_name=peripheral_name)
 
     def make_id(self):
-        return 'output{}.{}'.format(self.output, self.ID)
+        return f'output{self.output}.{self.ID}'
 
     def get_output_label(self):
-        return self.get_property('label') or 'Output {}'.format(self.output)
+        return self.get_property('label') or f'Output {self.output}'
 
     def get_property(self, name):
         return self.get_peripheral().get_property('pgm', self.output, name)
@@ -30,7 +30,7 @@ class OutputTroublePort(OutputPort):
     ID = 'trouble'
 
     async def attr_get_default_display_name(self):
-        return '{} Trouble'.format(self.get_output_label())
+        return f'{self.get_output_label()} Trouble'
 
     async def read_value(self):
         for name, value in self.get_properties().items():
@@ -47,7 +47,7 @@ class OutputTamperPort(OutputPort):
     ID = 'tamper'
 
     async def attr_get_default_display_name(self):
-        return '{} Tamper'.format(self.get_output_label())
+        return f'{self.get_output_label()} Tamper'
 
     async def read_value(self):
         return self.get_property('tamper')

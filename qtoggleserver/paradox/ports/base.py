@@ -226,7 +226,7 @@ class PAIPeripheral(Peripheral):
             raise exceptions.PAICommandError('failed to set area armed mode')
 
     async def set_zone_bypass(self, zone, bypass):
-        self.debug('zone %s: % bypass', zone, ['clear', 'set'][bypass])
+        self.debug('zone %s: %s bypass', zone, ['clear', 'set'][bypass])
         if not await self._paradox.panel.control_zones([zone], constants.ZONE_BYPASS_MAPPING[bypass]):
             raise exceptions.PAICommandError('failed to set zone bypass')
 

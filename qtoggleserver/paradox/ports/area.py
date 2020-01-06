@@ -12,10 +12,10 @@ class AreaPort(PAIPort, metaclass=ABCMeta):
         super().__init__(address, peripheral_name=peripheral_name)
 
     def make_id(self):
-        return 'area{}.{}'.format(self.area, self.ID)
+        return f'area{self.area}.{self.ID}'
 
     def get_area_label(self):
-        return self.get_property('label') or 'Area {}'.format(self.area)
+        return self.get_property('label') or f'Area {self.area}'
 
     def get_property(self, name):
         return self.get_peripheral().get_property('partition', self.area, name)
@@ -71,7 +71,7 @@ class AreaArmedPort(AreaPort):
         self._pending = False
 
     async def attr_get_default_display_name(self):
-        return '{} Armed'.format(self.get_area_label())
+        return f'{self.get_area_label()} Armed'
 
     async def read_value(self):
         current_state = self.get_property('current_state')
@@ -119,7 +119,7 @@ class AreaAlarmPort(AreaPort):
     ID = 'alarm'
 
     async def attr_get_default_display_name(self):
-        return '{} Alarm'.format(self.get_area_label())
+        return f'{self.get_area_label()} Alarm'
 
     async def read_value(self):
         return self.get_property('alarm')

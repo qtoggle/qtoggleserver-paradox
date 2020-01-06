@@ -9,7 +9,7 @@ class SystemPort(PAIPort, metaclass=ABCMeta):
         super().__init__(address, peripheral_name=peripheral_name)
 
     def make_id(self):
-        return 'system.{}'.format(self.ID)
+        return f'system.{self.ID}'
 
     def get_property(self, name):
         return self.get_peripheral().get_property('system', None, name)

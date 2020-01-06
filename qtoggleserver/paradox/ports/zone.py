@@ -11,10 +11,10 @@ class ZonePort(PAIPort, metaclass=ABCMeta):
         super().__init__(address, peripheral_name=peripheral_name)
 
     def make_id(self):
-        return 'zone{}.{}'.format(self.zone, self.ID)
+        return f'zone{self.zone}.{self.ID}'
 
     def get_zone_label(self):
-        return self.get_property('label') or 'Zone {}'.format(self.zone)
+        return self.get_property('label') or f'Zone {self.zone}'
 
     def get_property(self, name):
         return self.get_peripheral().get_property('zone', self.zone, name)
@@ -30,7 +30,7 @@ class ZoneOpenPort(ZonePort):
     ID = 'open'
 
     async def attr_get_default_display_name(self):
-        return '{} Open'.format(self.get_zone_label())
+        return f'{self.get_zone_label()} Open'
 
     async def read_value(self):
         return self.get_property('open')
@@ -43,7 +43,7 @@ class ZoneAlarmPort(ZonePort):
     ID = 'alarm'
 
     async def attr_get_default_display_name(self):
-        return '{} Alarm'.format(self.get_zone_label())
+        return f'{self.get_zone_label()} Alarm'
 
     async def read_value(self):
         return self.get_property('alarm')
@@ -56,7 +56,7 @@ class ZoneTroublePort(ZonePort):
     ID = 'trouble'
 
     async def attr_get_default_display_name(self):
-        return '{} Trouble'.format(self.get_zone_label())
+        return f'{self.get_zone_label()} Trouble'
 
     async def read_value(self):
         for name, value in self.get_properties().items():
@@ -73,7 +73,7 @@ class ZoneTamperPort(ZonePort):
     ID = 'tamper'
 
     async def attr_get_default_display_name(self):
-        return '{} Tamper'.format(self.get_zone_label())
+        return f'{self.get_zone_label()} Tamper'
 
     async def read_value(self):
         return self.get_property('tamper')

@@ -19,7 +19,7 @@ from . import exceptions
 class PAIPeripheral(Peripheral):
     logger = logging.getLogger(__name__)
 
-    def __init__(self, address, name):
+    def __init__(self, address, name) -> None:
         self.setup_config()
         self.setup_logging()
 
@@ -240,7 +240,7 @@ class PAIPort(PeripheralPort, ConfigurableMixin, metaclass=ABCMeta):
     PERIPHERAL_CLASS = PAIPeripheral
     CMD_TIMEOUT = 60
 
-    def __init__(self, address, peripheral_name=None):
+    def __init__(self, address, peripheral_name=None) -> None:
         super().__init__(address, peripheral_name)
 
     async def attr_is_online(self):

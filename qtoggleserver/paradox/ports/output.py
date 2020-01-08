@@ -5,7 +5,7 @@ from .base import PAIPort
 
 
 class OutputPort(PAIPort, metaclass=ABCMeta):
-    def __init__(self, output, address, peripheral_name=None):
+    def __init__(self, output, address, peripheral_name=None) -> None:
         self.output = output
 
         super().__init__(address, peripheral_name=peripheral_name)

@@ -5,7 +5,7 @@ from .base import PAIPort
 
 
 class SystemPort(PAIPort, metaclass=ABCMeta):
-    def __init__(self, address, peripheral_name=None):
+    def __init__(self, address, peripheral_name=None) -> None:
         super().__init__(address, peripheral_name=peripheral_name)
 
     def make_id(self):

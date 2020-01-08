@@ -6,7 +6,7 @@ from .base import PAIPort
 
 
 class AreaPort(PAIPort, metaclass=ABCMeta):
-    def __init__(self, area, address, peripheral_name=None):
+    def __init__(self, area, address, peripheral_name=None) -> None:
         self.area = area
 
         super().__init__(address, peripheral_name=peripheral_name)
@@ -63,7 +63,7 @@ class AreaArmedPort(AreaPort):
         4: constants.ARMED_MODE_ARMED_STAY
     }
 
-    def __init__(self, area, address, peripheral_name=None):
+    def __init__(self, area, address, peripheral_name=None) -> None:
         super().__init__(area, address, peripheral_name)
 
         self._requested_value = None  # Used to cache written value while pending

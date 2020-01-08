@@ -5,7 +5,7 @@ from .base import PAIPort
 
 
 class ZonePort(PAIPort, metaclass=ABCMeta):
-    def __init__(self, zone, address, peripheral_name=None):
+    def __init__(self, zone, address, peripheral_name=None) -> None:
         self.zone = zone
 
         super().__init__(address, peripheral_name=peripheral_name)

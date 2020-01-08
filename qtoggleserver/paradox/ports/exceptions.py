@@ -5,7 +5,7 @@ class PAIException(Exception):
 
 class PAIConnectError(PAIException):
     def __init__(self) -> None:
-        super().__init__('unable to connect to panel')
+        super().__init__('Unable to connect to panel')
 
 
 class PAICommandError(PAIException):

@@ -1,12 +1,13 @@
 
+import abc
 import asyncio
 import logging
 
-from abc import ABCMeta
+from typing import Dict, Optional
+
 from paradox.config import config
 from paradox.lib import ps
 from paradox.paradox import Paradox
-from typing import Dict, Optional
 
 from qtoggleserver.utils import ConfigurableMixin
 from qtoggleserver.utils import json as json_utils
@@ -237,7 +238,7 @@ class PAIPeripheral(Peripheral):
             raise exceptions.PAICommandError('Failed to set output action')
 
 
-class PAIPort(PeripheralPort, ConfigurableMixin, metaclass=ABCMeta):
+class PAIPort(PeripheralPort, ConfigurableMixin, metaclass=abc.ABCMeta):
     PERIPHERAL_CLASS = PAIPeripheral
     CMD_TIMEOUT = 60
 

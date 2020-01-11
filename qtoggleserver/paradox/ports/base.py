@@ -6,20 +6,21 @@ from abc import ABCMeta
 from paradox.config import config
 from paradox.lib import ps
 from paradox.paradox import Paradox
+from typing import Dict, Optional
 
 from qtoggleserver.utils import ConfigurableMixin
 from qtoggleserver.utils import json as json_utils
 from qtoggleserver.lib.peripheral import Peripheral, PeripheralPort
 
-
 from . import constants
 from . import exceptions
+from .typing import Property
 
 
 class PAIPeripheral(Peripheral):
     logger = logging.getLogger(__name__)
 
-    def __init__(self, address, name) -> None:
+    def __init__(self, address: str, name: str) -> None:
         self.setup_config()
         self.setup_logging()
 
@@ -34,7 +35,7 @@ class PAIPeripheral(Peripheral):
         super().__init__(address, name)
 
     @staticmethod
-    def setup_config():
+    def setup_config() -> None:
         config.CONFIG_LOADED = True
         for k, v in config.DEFAULTS.items():
             if isinstance(v, tuple):
@@ -43,11 +44,11 @@ class PAIPeripheral(Peripheral):
             setattr(config, k, v)
 
     @staticmethod
-    def setup_logging():
+    def setup_logging() -> None:
         logging.getLogger('PAI').setLevel(logging.ERROR)
         logging.getLogger('PAI.paradox.lib.async_message_manager').setLevel(logging.CRITICAL)
 
-    def make_paradox(self):
+    def make_paradox(self) -> Paradox:
         address = self.get_address()
         parts = address.split(':')
 
@@ -77,7 +78,7 @@ class PAIPeripheral(Peripheral):
 
         return Paradox()
 
-    def parse_labels(self):
+    def parse_labels(self) -> None:
         for area in self._paradox.storage.data['partition'].values():
             self.debug('detected area id=%s, label=%s', area['id'], json_utils.dumps(area['label']))
 
@@ -92,7 +93,7 @@ class PAIPeripheral(Peripheral):
                 if 'label' in entry:
                     self._properties.setdefault(_type, {}).setdefault(entry['id'], {})['label'] = entry['label']
 
-    async def connect(self):
+    async def connect(self) -> None:
         self.debug('connecting to panel')
 
         if not self._paradox:
@@ -104,13 +105,13 @@ class PAIPeripheral(Peripheral):
         self.debug('connected to panel')
         asyncio.create_task(self.handle_connected())
 
-    async def handle_connected(self):
+    async def handle_connected(self) -> None:
         self._panel_task = asyncio.create_task(self._paradox.async_loop())
 
         self.parse_labels()
         self.trigger_port_update()
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
         if self._panel_task is None:
             return
 
@@ -138,7 +139,7 @@ class PAIPeripheral(Peripheral):
 
         self._panel_task = None
 
-    def is_connected(self):
+    def is_connected(self) -> bool:
         if not self._paradox:
             return False
 
@@ -150,7 +151,7 @@ class PAIPeripheral(Peripheral):
 
         return bool(self._paradox.connection.connected)
 
-    async def _check_connection_loop(self):
+    async def _check_connection_loop(self) -> None:
         connect_succeeded = False
 
         try:
@@ -179,11 +180,11 @@ class PAIPeripheral(Peripheral):
         except asyncio.CancelledError:
             pass
 
-    async def handle_cleanup(self):
+    async def handle_cleanup(self) -> None:
         await super().handle_cleanup()
         await self.disconnect()
 
-    def handle_paradox_property_change(self, change):
+    def handle_paradox_property_change(self, change) -> None:
         info = self._paradox.storage.data[change.type].get(change.key)
         if info and ('id' in info):
             _id = info['id']
@@ -206,31 +207,31 @@ class PAIPeripheral(Peripheral):
             except Exception as e:
                 self.error('property change handler execution failed: %s', e, exc_info=True)
 
-    def get_property(self, _type, _id, name):
+    def get_property(self, _type: str, _id: Optional[str], name: str) -> Property:
         if _type == 'system':
             return self._properties.get(_type, {}).get(name)
 
         else:
             return self._properties.get(_type, {}).get(_id, {}).get(name)
 
-    def get_properties(self, _type, _id):
+    def get_properties(self, _type: str, _id: Optional[str]) -> Dict[str, Property]:
         if _type == 'system':
             return self._properties.get(_type, {})
 
         else:
             return self._properties.get(_type, {}).get(_id, {})
 
-    async def set_area_armed_mode(self, area, armed_mode):
+    async def set_area_armed_mode(self, area: int, armed_mode: str) -> None:
         self.debug('area %s: set armed mode to %s', area, armed_mode)
         if not await self._paradox.panel.control_partitions([area], armed_mode):
             raise exceptions.PAICommandError('Failed to set area armed mode')
 
-    async def set_zone_bypass(self, zone, bypass):
+    async def set_zone_bypass(self, zone: int, bypass: bool) -> None:
         self.debug('zone %s: %s bypass', zone, ['clear', 'set'][bypass])
         if not await self._paradox.panel.control_zones([zone], constants.ZONE_BYPASS_MAPPING[bypass]):
             raise exceptions.PAICommandError('Failed to set zone bypass')
 
-    async def set_output_action(self, output, action):
+    async def set_output_action(self, output: int, action: str) -> None:
         self.debug('output %s: set action to %s', output, action)
         if not await self._paradox.panel.control_outputs([output], action):
             raise exceptions.PAICommandError('Failed to set output action')
@@ -240,11 +241,16 @@ class PAIPort(PeripheralPort, ConfigurableMixin, metaclass=ABCMeta):
     PERIPHERAL_CLASS = PAIPeripheral
     CMD_TIMEOUT = 60
 
-    def __init__(self, address, peripheral_name=None) -> None:
+    def __init__(self, address: str, peripheral_name: Optional[str] = None) -> None:
         super().__init__(address, peripheral_name)
 
-    async def attr_is_online(self):
+    async def attr_is_online(self) -> bool:
         return self.get_peripheral().is_connected()
 
-    def on_property_change(self, _type, _id, _property, old_value, new_value):
+    def on_property_change(self,
+                           _type: str,
+                           _id: Optional[str],
+                           _property: str,
+                           old_value: Property,
+                           new_value: Property):
         pass

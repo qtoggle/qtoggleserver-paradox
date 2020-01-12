@@ -3,7 +3,7 @@ import abc
 import asyncio
 import logging
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from paradox.config import config
 from paradox.lib import ps
@@ -185,7 +185,7 @@ class PAIPeripheral(Peripheral):
         await super().handle_cleanup()
         await self.disconnect()
 
-    def handle_paradox_property_change(self, change) -> None:
+    def handle_paradox_property_change(self, change: Any) -> None:
         info = self._paradox.storage.data[change.type].get(change.key)
         if info and ('id' in info):
             _id = info['id']
@@ -253,5 +253,5 @@ class PAIPort(PeripheralPort, ConfigurableMixin, metaclass=abc.ABCMeta):
                            _id: Optional[str],
                            _property: str,
                            old_value: Property,
-                           new_value: Property):
+                           new_value: Property) -> None:
         pass

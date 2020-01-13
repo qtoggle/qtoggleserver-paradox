@@ -9,9 +9,9 @@ from paradox.config import config
 from paradox.lib import ps
 from paradox.paradox import Paradox
 
-from qtoggleserver.utils import ConfigurableMixin
-from qtoggleserver.utils import json as json_utils
 from qtoggleserver.lib.peripheral import Peripheral, PeripheralPort
+from qtoggleserver.utils import json as json_utils
+from qtoggleserver.utils.configurable import ConfigurableMixin
 
 from . import constants
 from . import exceptions

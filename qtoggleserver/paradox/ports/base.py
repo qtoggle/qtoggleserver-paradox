@@ -248,10 +248,13 @@ class PAIPort(PeripheralPort, ConfigurableMixin, metaclass=abc.ABCMeta):
     async def attr_is_online(self) -> bool:
         return self.get_peripheral().is_connected()
 
-    def on_property_change(self,
-                           _type: str,
-                           _id: Optional[str],
-                           _property: str,
-                           old_value: Property,
-                           new_value: Property) -> None:
+    def on_property_change(
+        self,
+        _type: str,
+        _id: Optional[str],
+        _property: str,
+        old_value: Property,
+        new_value: Property
+    ) -> None:
+
         pass

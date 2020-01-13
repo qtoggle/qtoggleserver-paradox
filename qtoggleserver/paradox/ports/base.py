@@ -11,7 +11,7 @@ from paradox.paradox import Paradox
 
 from qtoggleserver.lib.peripheral import Peripheral, PeripheralPort
 from qtoggleserver.utils import json as json_utils
-from qtoggleserver.utils.configurable import ConfigurableMixin
+from qtoggleserver.utils import configurable as configurable_utils
 
 from . import constants
 from . import exceptions
@@ -238,7 +238,7 @@ class PAIPeripheral(Peripheral):
             raise exceptions.PAICommandError('Failed to set output action')
 
 
-class PAIPort(PeripheralPort, ConfigurableMixin, metaclass=abc.ABCMeta):
+class PAIPort(PeripheralPort, configurable_utils.ConfigurableMixin, metaclass=abc.ABCMeta):
     PERIPHERAL_CLASS = PAIPeripheral
     CMD_TIMEOUT = 60
 

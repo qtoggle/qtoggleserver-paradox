@@ -140,25 +140,20 @@ class PAIPeripheral(Peripheral):
 
         self._panel_task = None
 
-    def is_connected(self) -> bool:
-        if not self._paradox:
-            return False
-
-        if not self._paradox.panel:
-            return False
-
-        if not self._panel_task:
-            return False
-
-        return bool(self._paradox.connection.connected)
-
     async def _check_connection_loop(self) -> None:
         connect_succeeded = False
 
         try:
             while True:
-                connected = (self._paradox and self._paradox.connection and
-                             self._paradox.connection.connected and connect_succeeded)
+                connected = (
+                    self._paradox and
+                    self._paradox.connection and
+                    self._paradox.connection.connected and
+                    connect_succeeded
+                )
+
+                self.set_online(connected)
+
                 if self.is_enabled() and not connected:
                     try:
                         await self.connect()
@@ -244,9 +239,6 @@ class PAIPort(PeripheralPort, conf_utils.ConfigurableMixin, metaclass=abc.ABCMet
 
     def __init__(self, address: str, peripheral_name: Optional[str] = None) -> None:
         super().__init__(address, peripheral_name)
-
-    async def attr_is_online(self) -> bool:
-        return self.get_peripheral().is_connected()
 
     def on_property_change(
         self,

@@ -83,7 +83,7 @@ class AreaArmedPort(AreaPort):
             return
 
         self._last_state = current_state
-        self.debug('current state is now %s', current_state)
+        self.debug('current state is %s', current_state)
 
         if current_state == 'pending':
             if self._requested_value is not None:
@@ -106,7 +106,11 @@ class AreaArmedPort(AreaPort):
                 self._pending = False
                 self._requested_value = None
 
-            return self._ARMED_STATE_MAPPING.get(current_state)
+            if self._requested_value is not None:
+                return -self._requested_value
+
+            else:
+                return self._ARMED_STATE_MAPPING.get(current_state)
 
     async def write_value(self, value: int) -> None:
         await self.get_peripheral().set_area_armed_mode(self.area, self._ARMED_MODE_MAPPING[value])

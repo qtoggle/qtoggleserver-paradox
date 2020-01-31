@@ -33,7 +33,11 @@ class AreaArmedPort(AreaPort):
         {'value': 1, 'display_name': 'Disarmed'},
         {'value': 2, 'display_name': 'Armed'},
         {'value': 3, 'display_name': 'Armed (Sleep)'},
-        {'value': 4, 'display_name': 'Armed (Stay)'}
+        {'value': 4, 'display_name': 'Armed (Stay)'},
+        {'value': -1, 'display_name': 'Disarming'},
+        {'value': -2, 'display_name': 'Arming'},
+        {'value': -3, 'display_name': 'Arming (Sleep)'},
+        {'value': -4, 'display_name': 'Arming (Stay)'}
     ]
 
     ID = 'armed'

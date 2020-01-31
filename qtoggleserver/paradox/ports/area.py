@@ -55,13 +55,6 @@ class AreaArmedPort(AreaPort):
         4: 'armed_home',
     }
 
-    _OPPOSITE_ARMED_STATE_MAPPING = {
-        'disarmed': 'armed_away',
-        'armed_away': 'disarmed',
-        'armed_night': 'disarmed',
-        'armed_home': 'disarmed'
-    }
-
     _ARMED_MODE_MAPPING = {
         1: constants.ARMED_MODE_DISARMED,
         2: constants.ARMED_MODE_ARMED,
@@ -74,51 +67,46 @@ class AreaArmedPort(AreaPort):
 
         self._requested_value: Optional[int] = None  # Used to cache written value while pending
         self._last_state: str = self.get_property('current_state') or self._DEFAULT_STATE
-        self._pending: bool = False
+        self._prev_state: Optional[str] = None
 
     async def attr_get_default_display_name(self) -> str:
         return f'{self.get_area_label()} Armed'
 
     async def read_value(self) -> Optional[int]:
         current_state = self.get_property('current_state')
-        last_state = self._last_state
 
-        if current_state == last_state:
+        # Ignore pending state
+        if current_state == 'pending':
+            current_state = self._last_state
+
+        # Only act on transitions
+        if current_state == self._last_state:
             return
 
+        self.debug('state transition: %s -> %s', self._last_state, current_state)
         self._last_state = current_state
-        self.debug('current state is %s', current_state)
 
-        if current_state == 'pending':
-            if self._requested_value is not None:
-                if not self._pending:
-                    self.debug('state %s is pending', self._ARMED_STATE_MAPPING[self._requested_value])
-                    self._pending = True
-
-                return -self._requested_value
-
-            else:
-                # If state becomes pending but we don't have a requested value, it's probably arming/disarming via some
-                # other external means. The best we can do is to indicate the opposite state as pending.
-                opposite_state = self._OPPOSITE_ARMED_STATE_MAPPING[last_state]
-                return -self._ARMED_STATE_MAPPING[opposite_state]
-
-        else:
-            if self._pending:
-                # Reset requested value when pending request is fulfilled
-                self.debug('state %s fulfilled', self._ARMED_STATE_MAPPING[self._requested_value])
-                self._pending = False
+        if self._requested_value is not None:  # Pending requested value
+            if current_state != self._prev_state:
+                requested_state = self._ARMED_STATE_MAPPING[self._requested_value]
                 self._requested_value = None
 
-            if self._requested_value is not None:
-                return -self._requested_value
+                if current_state == requested_state:
+                    self.debug('requested state %s fulfilled', requested_state)
 
-            else:
-                return self._ARMED_STATE_MAPPING.get(current_state)
+                else:
+                    self.debug('requested state %s not fulfilled', requested_state)
+
+        if self._requested_value is not None:
+            return -self._requested_value
+
+        else:
+            return self._ARMED_STATE_MAPPING[current_state]
 
     async def write_value(self, value: int) -> None:
         await self.get_peripheral().set_area_armed_mode(self.area, self._ARMED_MODE_MAPPING[value])
         self._requested_value = value
+        self._prev_state = self._last_state
         self._last_state = self._ARMED_STATE_MAPPING[value]
 
 

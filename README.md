@@ -1,18 +1,18 @@
-### About
+## About
 
 This is an addon for [qToggleServer](https://github.com/qtoggle/qtoggleserver).
 
 It provides a set of drivers to control your Paradox alarm with qToggleServer.
 
 
-### Install
+## Install
 
 Install using pip:
 
     pip install qtoggleserver-paradox
 
 
-### Usage
+## Usage
 
 ##### `qtoggleserver.conf:`
 ``` javascript

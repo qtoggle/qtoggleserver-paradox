@@ -184,16 +184,22 @@ class PAIPeripheral(Peripheral):
         info = self._paradox.storage.data[change.type].get(change.key)
         if info and ('id' in info):
             _id = info['id']
-            self.debug('property change: %s[%s].%s: %s -> %s', change.type, _id, change.property,
-                       json_utils.dumps(change.old_value), json_utils.dumps(change.new_value))
+            self.debug(
+                'property change: %s[%s].%s: %s -> %s', change.type, _id, change.property,
+                json_utils.dumps(change.old_value, allow_extended_types=True),
+                json_utils.dumps(change.new_value, allow_extended_types=True)
+            )
             obj = self._properties.setdefault(change.type, {}).setdefault(_id, {})
             obj[change.property] = change.new_value
             obj['label'] = info['label']
 
         else:
             _id = None
-            self.debug('property change: %s.%s: %s -> %s', change.type, change.property,
-                       json_utils.dumps(change.old_value), json_utils.dumps(change.new_value))
+            self.debug(
+                'property change: %s.%s: %s -> %s', change.type, change.property,
+                json_utils.dumps(change.old_value, allow_extended_types=True),
+                json_utils.dumps(change.new_value, allow_extended_types=True)
+            )
             self._properties.setdefault(change.type, {})[change.property] = change.new_value
 
         for port in self.get_ports():

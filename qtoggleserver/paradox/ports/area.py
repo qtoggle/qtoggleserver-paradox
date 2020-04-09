@@ -80,7 +80,7 @@ class AreaArmedPort(AreaPort):
         return f'{self.get_area_label()} Armed'
 
     async def read_value(self) -> Optional[int]:
-        current_state = self.get_property('current_state')
+        current_state = self.get_property('current_state') or self._DEFAULT_STATE
 
         # Only act on transitions
         if current_state != self._last_state:

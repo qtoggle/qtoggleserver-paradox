@@ -100,14 +100,14 @@ class PAIPeripheral(Peripheral):
         if not self._paradox:
             self._paradox = self.make_paradox()
 
-        if not await self._paradox.connect_async():
+        if not await self._paradox.connect():
             raise exceptions.PAIConnectError()
 
         self.debug('connected to panel')
         asyncio.create_task(self.handle_connected())
 
     async def handle_connected(self) -> None:
-        self._panel_task = asyncio.create_task(self._paradox.async_loop())
+        self._panel_task = asyncio.create_task(self._paradox.loop())
 
         self.parse_labels()
         self.trigger_port_update()

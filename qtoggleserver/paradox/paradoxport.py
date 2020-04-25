@@ -4,13 +4,12 @@ import abc
 from typing import cast, Optional
 
 from qtoggleserver.peripherals import PeripheralPort
-from qtoggleserver.utils import conf as conf_utils
 
 from .paradoxalarm import ParadoxAlarm
 from .typing import Property
 
 
-class ParadoxPort(PeripheralPort, conf_utils.ConfigurableMixin, metaclass=abc.ABCMeta):
+class ParadoxPort(PeripheralPort, metaclass=abc.ABCMeta):
     CMD_TIMEOUT = 60
 
     def on_property_change(

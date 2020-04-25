@@ -2,15 +2,15 @@
 from abc import ABCMeta
 from typing import Dict, Optional
 
-from .base import PAIPort
+from .paradoxport import ParadoxPort
 from .typing import Property
 
 
-class ZonePort(PAIPort, metaclass=ABCMeta):
-    def __init__(self, zone: int, address: str, peripheral_name: Optional[str] = None) -> None:
+class ZonePort(ParadoxPort, metaclass=ABCMeta):
+    def __init__(self, zone: int, *args, **kwargs) -> None:
         self.zone: int = zone
 
-        super().__init__(address, peripheral_name=peripheral_name)
+        super().__init__(*args, **kwargs)
 
     def make_id(self) -> str:
         return f'zone{self.zone}.{self.ID}'
@@ -19,10 +19,10 @@ class ZonePort(PAIPort, metaclass=ABCMeta):
         return self.get_property('label') or f'Zone {self.zone}'
 
     def get_property(self, name: str) -> Property:
-        return self.get_peripheral().get_property('zone', self.zone, name)
+        return self.get_peripheral().get_property('zone', str(self.zone), name)
 
     def get_properties(self) -> Dict[str, Property]:
-        return self.get_peripheral().get_properties('zone', self.zone)
+        return self.get_peripheral().get_properties('zone', str(self.zone))
 
 
 class ZoneOpenPort(ZonePort):

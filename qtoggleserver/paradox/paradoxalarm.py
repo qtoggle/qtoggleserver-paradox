@@ -1,16 +1,14 @@
 
-import abc
 import asyncio
 import logging
 
-from typing import Any, Dict, Optional
+from typing import Any, cast, Dict, List, Optional
 
 from paradox.config import config
 from paradox.lib import ps
 from paradox.paradox import Paradox
 
-from qtoggleserver.lib.peripheral import Peripheral, PeripheralPort
-from qtoggleserver.utils import conf as conf_utils
+from qtoggleserver.peripherals import Peripheral
 from qtoggleserver.utils import json as json_utils
 
 from . import constants
@@ -18,12 +16,34 @@ from . import exceptions
 from .typing import Property
 
 
-class PAIPeripheral(Peripheral):
+class ParadoxAlarm(Peripheral):
     logger = logging.getLogger(__name__)
 
-    def __init__(self, address: str, name: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        areas: List[int] = None,
+        zones: List[int] = None,
+        outputs: List[int] = None,
+        serial_port: Optional[str] = None,
+        serial_baud: int = constants.DEFAULT_SERIAL_BAUD,
+        ip_host: Optional[str] = None,
+        ip_port: int = constants.DEFAULT_IP_PORT,
+        ip_password: str = constants.DEFAULT_IP_PASSWORD,
+    ) -> None:
+
         self.setup_config()
         self.setup_logging()
+
+        self._areas = areas or []
+        self._zones = zones or []
+        self._outputs = outputs or []
+
+        self._serial_port = serial_port
+        self._serial_baud = serial_baud
+        self._ip_host = ip_host
+        self._ip_port = ip_port
+        self._ip_password = ip_password
 
         self._paradox = None
         self._panel_task = None
@@ -33,7 +53,7 @@ class PAIPeripheral(Peripheral):
 
         self._properties = {}
 
-        super().__init__(address, name)
+        super().__init__(name)
 
     @staticmethod
     def setup_config() -> None:
@@ -50,30 +70,18 @@ class PAIPeripheral(Peripheral):
         logging.getLogger('PAI.paradox.lib.async_message_manager').setLevel(logging.CRITICAL)
 
     def make_paradox(self) -> Paradox:
-        address = self.get_address()
-        parts = address.split(':')
-
-        if parts[0].startswith('/'):  # A serial port, e.g. /dev/ttyUSB0
+        if self._serial_port:
             config.CONNECTION_TYPE = 'Serial'
-            config.SERIAL_PORT = parts[0]
-            config.SERIAL_BAUD = constants.DEFAULT_SERIAL_BAUD
-            if len(parts) > 1:
-                config.SERIAL_BAUD = int(parts[1])
+            config.SERIAL_PORT = self._serial_port
+            config.SERIAL_BAUD = self._serial_baud
 
             self.debug('using serial connection on %s:%s', config.SERIAL_PORT, config.SERIAL_BAUD)
 
         else:  # IP connection, e.g. 192.168.1.2:10000:paradox
             config.CONNECTION_TYPE = 'IP'
-            config.IP_CONNECTION_HOST = parts[0]
-            config.IP_CONNECTION_PORT = constants.DEFAULT_IP_PORT
-            config.IP_CONNECTION_PASSWORD = constants.DEFAULT_IP_PASSWORD
-            if len(parts) > 1:
-                config.IP_CONNECTION_PORT = int(parts[1])
-
-            if len(parts) > 2:
-                config.IP_CONNECTION_PASSWORD = parts[2]
-
-            config.IP_CONNECTION_PASSWORD = config.IP_CONNECTION_PASSWORD.encode()
+            config.IP_CONNECTION_HOST = self._ip_host
+            config.IP_CONNECTION_PORT = self._ip_port
+            config.IP_CONNECTION_PASSWORD = self._ip_password.encode()
 
             self.debug('using IP connection on %s:%s', config.IP_CONNECTION_HOST, config.IP_CONNECTION_PORT)
 
@@ -101,10 +109,29 @@ class PAIPeripheral(Peripheral):
             self._paradox = self.make_paradox()
 
         if not await self._paradox.connect():
-            raise exceptions.PAIConnectError()
+            raise exceptions.ParadoxConnectError()
 
         self.debug('connected to panel')
         asyncio.create_task(self.handle_connected())
+
+    def make_port_args(self) -> List[Dict[str, Any]]:
+        from .area import AreaAlarmPort, AreaArmedPort
+        from .output import OutputTamperPort, OutputTroublePort
+        from .zone import ZoneAlarmPort, ZoneOpenPort, ZoneTamperPort, ZoneTroublePort
+        from .system import SystemTroublePort
+
+        port_args = []
+        port_args += [{'driver': AreaAlarmPort, 'area': area} for area in self._areas]
+        port_args += [{'driver': AreaArmedPort, 'area': area} for area in self._areas]
+        port_args += [{'driver': OutputTamperPort, 'output': output} for output in self._outputs]
+        port_args += [{'driver': OutputTroublePort, 'output': output} for output in self._outputs]
+        port_args += [{'driver': ZoneAlarmPort, 'zone': zone} for zone in self._zones]
+        port_args += [{'driver': ZoneOpenPort, 'zone': zone} for zone in self._zones]
+        port_args += [{'driver': ZoneTamperPort, 'zone': zone} for zone in self._zones]
+        port_args += [{'driver': ZoneTroublePort, 'zone': zone} for zone in self._zones]
+        port_args += [{'driver': SystemTroublePort}]
+
+        return port_args
 
     async def handle_connected(self) -> None:
         self._panel_task = asyncio.create_task(self._paradox.loop())
@@ -181,6 +208,8 @@ class PAIPeripheral(Peripheral):
         await self.disconnect()
 
     def handle_paradox_property_change(self, change: Any) -> None:
+        from .paradoxport import ParadoxPort
+
         info = self._paradox.storage.data[change.type].get(change.key)
         if info and ('id' in info):
             _id = info['id']
@@ -203,8 +232,10 @@ class PAIPeripheral(Peripheral):
             self._properties.setdefault(change.type, {})[change.property] = change.new_value
 
         for port in self.get_ports():
+            pai_port = cast(ParadoxPort, port)
+
             try:
-                port.on_property_change(change.type, _id, change.property, change.old_value, change.new_value)
+                pai_port.on_property_change(change.type, _id, change.property, change.old_value, change.new_value)
 
             except Exception as e:
                 self.error('property change handler execution failed: %s', e, exc_info=True)
@@ -226,33 +257,14 @@ class PAIPeripheral(Peripheral):
     async def set_area_armed_mode(self, area: int, armed_mode: str) -> None:
         self.debug('area %s: set armed mode to %s', area, armed_mode)
         if not await self._paradox.panel.control_partitions([area], armed_mode):
-            raise exceptions.PAICommandError('Failed to set area armed mode')
+            raise exceptions.ParadoxCommandError('Failed to set area armed mode')
 
     async def set_zone_bypass(self, zone: int, bypass: bool) -> None:
         self.debug('zone %s: %s bypass', zone, ['clear', 'set'][bypass])
         if not await self._paradox.panel.control_zones([zone], constants.ZONE_BYPASS_MAPPING[bypass]):
-            raise exceptions.PAICommandError('Failed to set zone bypass')
+            raise exceptions.ParadoxCommandError('Failed to set zone bypass')
 
     async def set_output_action(self, output: int, action: str) -> None:
         self.debug('output %s: set action to %s', output, action)
         if not await self._paradox.panel.control_outputs([output], action):
-            raise exceptions.PAICommandError('Failed to set output action')
-
-
-class PAIPort(PeripheralPort, conf_utils.ConfigurableMixin, metaclass=abc.ABCMeta):
-    PERIPHERAL_CLASS = PAIPeripheral
-    CMD_TIMEOUT = 60
-
-    def __init__(self, address: str, peripheral_name: Optional[str] = None) -> None:
-        super().__init__(address, peripheral_name)
-
-    def on_property_change(
-        self,
-        _type: str,
-        _id: Optional[str],
-        _property: str,
-        old_value: Property,
-        new_value: Property
-    ) -> None:
-
-        pass
+            raise exceptions.ParadoxCommandError('Failed to set output action')

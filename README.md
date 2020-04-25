@@ -2,7 +2,7 @@
 
 This is an addon for [qToggleServer](https://github.com/qtoggle/qtoggleserver).
 
-It provides a set of drivers to control your Paradox alarm with qToggleServer.
+It provides a driver to control your Paradox alarm with qToggleServer.
 
 
 ## Install
@@ -17,72 +17,21 @@ Install using pip:
 ##### `qtoggleserver.conf:`
 ``` javascript
 ...
-ports = [
+peripherals = [
     ...
     {
-        driver = "qtoggleserver.paradox.ports.area.AreaArmedPort"
-        area = 1
-        address = "/dev/ttyUSB0"
-    }
-    {
-        driver = "qtoggleserver.paradox.ports.area.AreaAlarmPort"
-        area = 1
-        address = "/dev/ttyUSB0"
-    }
-
-    {
-        driver = "qtoggleserver.paradox.ports.output.OutputTroublePort"
-        output = 1
-        address = "/dev/ttyUSB0"
-    }
-    {
-        driver = "qtoggleserver.paradox.ports.output.OutputTamperPort"
-        output = 1
-        address = "/dev/ttyUSB0"
-    }
-
-    {
-        driver = "qtoggleserver.paradox.ports.system.SystemTroublePort"
-        address = "/dev/ttyUSB0"
-    }
-
-    {
-        driver = "qtoggleserver.paradox.ports.zone.ZoneOpenPort"
-        zone = 1
-        address = "/dev/ttyUSB0"
-    }
-    {
-        driver = "qtoggleserver.paradox.ports.zone.ZoneAlarmPort"
-        zone = 1
-        address = "/dev/ttyUSB0"
-    }
-    {
-        driver = "qtoggleserver.paradox.ports.zone.ZoneTroublePort"
-        zone = 1
-        address = "/dev/ttyUSB0"
-    }
-    {
-        driver = "qtoggleserver.paradox.ports.zone.ZoneTamperPort"
-        zone = 1
-        address = "/dev/ttyUSB0"
+        driver = "qtoggleserver.paradox.ParadoxAlarm"
+        name = "myalarm"                # a name of your choice
+        zones = [1, 2, 4, 6]            # list of zones in use
+        areas = [1, 2]                  # list of areas in use
+        outputs = [1]                   # list of outputs in use
+        serial_port = "/dev/ttyUSB0"
+        serial_baud = 9600              # this is the default
+        ip_host = "192.168.1.2"         # specify either this or serial_port, not both
+        ip_port = 10000                 # this is the default
+        ip_password = "paradox"         # this is the default 
     }
     ...
 ]
 ...
 ```
-
-The `address` field can be:
-
- * the details of a serial connection, given as `port:baud`, e.g.:
-     
-         /dev/ttyUSB0:9600
-     
-     The baud rate is optional and defaults to `9600`.
- 
- * the hostname of an IP interfacing module, given as `host:port:password`, e.g.:
- 
-         192.168.1.2:10000:paradox
-     
-     The port is optional an defaults to `10000`.
-     The password is optional and defaults to `paradox`.
-

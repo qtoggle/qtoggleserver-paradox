@@ -3,15 +3,15 @@ from abc import ABCMeta
 from typing import Dict, Optional
 
 from . import constants
-from .base import PAIPort
+from .paradoxport import ParadoxPort
 from .typing import Property
 
 
-class AreaPort(PAIPort, metaclass=ABCMeta):
-    def __init__(self, area: int, address: str, peripheral_name: Optional[str] = None) -> None:
+class AreaPort(ParadoxPort, metaclass=ABCMeta):
+    def __init__(self, area: int, *args, **kwargs) -> None:
         self.area: int = area
 
-        super().__init__(address, peripheral_name=peripheral_name)
+        super().__init__(*args, **kwargs)
 
     def make_id(self) -> str:
         return f'area{self.area}.{self.ID}'
@@ -20,10 +20,10 @@ class AreaPort(PAIPort, metaclass=ABCMeta):
         return self.get_property('label') or f'Area {self.area}'
 
     def get_property(self, name: str) -> Optional[Property]:
-        return self.get_peripheral().get_property('partition', self.area, name)
+        return self.get_peripheral().get_property('partition', str(self.area), name)
 
     def get_properties(self) -> Dict[str, Property]:
-        return self.get_peripheral().get_properties('partition', self.area)
+        return self.get_peripheral().get_properties('partition', str(self.area))
 
 
 class AreaArmedPort(AreaPort):
@@ -69,8 +69,8 @@ class AreaArmedPort(AreaPort):
         4: constants.ARMED_MODE_ARMED_STAY
     }
 
-    def __init__(self, area: int, address: str, peripheral_name: Optional[str] = None) -> None:
-        super().__init__(area, address, peripheral_name)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
         self._requested_value: Optional[int] = None  # Used to cache written value while pending
         self._last_state: str = self.get_property('current_state') or self._DEFAULT_STATE

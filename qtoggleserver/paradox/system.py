@@ -2,14 +2,11 @@
 from abc import ABCMeta
 from typing import Dict, Optional
 
-from .base import PAIPort
+from .paradoxport import ParadoxPort
 from .typing import Property
 
 
-class SystemPort(PAIPort, metaclass=ABCMeta):
-    def __init__(self, address: str, peripheral_name: Optional[str] = None) -> None:
-        super().__init__(address, peripheral_name=peripheral_name)
-
+class SystemPort(ParadoxPort, metaclass=ABCMeta):
     def make_id(self) -> str:
         return f'system.{self.ID}'
 
@@ -23,6 +20,7 @@ class SystemPort(PAIPort, metaclass=ABCMeta):
 class SystemTroublePort(SystemPort):
     TYPE = 'boolean'
     WRITABLE = False
+    DISPLAY_NAME = 'System Trouble'
 
     ID = 'trouble'
 

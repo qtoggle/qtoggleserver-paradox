@@ -2,15 +2,15 @@
 from abc import ABCMeta
 from typing import Dict, Optional
 
-from .base import PAIPort
+from .paradoxport import ParadoxPort
 from .typing import Property
 
 
-class OutputPort(PAIPort, metaclass=ABCMeta):
-    def __init__(self, output: int, address: str, peripheral_name: Optional[str] = None) -> None:
+class OutputPort(ParadoxPort, metaclass=ABCMeta):
+    def __init__(self, output: int, *args, **kwargs) -> None:
         self.output: int = output
 
-        super().__init__(address, peripheral_name=peripheral_name)
+        super().__init__(*args, **kwargs)
 
     def make_id(self) -> str:
         return f'output{self.output}.{self.ID}'
@@ -19,10 +19,10 @@ class OutputPort(PAIPort, metaclass=ABCMeta):
         return self.get_property('label') or f'Output {self.output}'
 
     def get_property(self, name: str) -> Property:
-        return self.get_peripheral().get_property('pgm', self.output, name)
+        return self.get_peripheral().get_property('pgm', str(self.output), name)
 
     def get_properties(self) -> Dict[str, Property]:
-        return self.get_peripheral().get_properties('pgm', self.output)
+        return self.get_peripheral().get_properties('pgm', str(self.output))
 
 
 class OutputTroublePort(OutputPort):

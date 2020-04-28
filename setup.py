@@ -1,12 +1,10 @@
 
 from setuptools import setup, find_namespace_packages
 
-from qtoggleserver.paradox import VERSION
-
 
 setup(
     name='qtoggleserver-paradox',
-    version=VERSION,
+    version='unknown-version',
     description='Control your Paradox alarm with qToggleServer',
     author='Calin Crisan',
     author_email='ccrisan@gmail.com',

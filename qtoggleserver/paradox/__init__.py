@@ -2,4 +2,4 @@
 from .paradoxalarm import ParadoxAlarm
 
 
-VERSION = 'unknown'
+VERSION = 'unknown-version'

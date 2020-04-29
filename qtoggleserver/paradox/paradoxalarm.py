@@ -2,7 +2,7 @@
 import asyncio
 import logging
 
-from typing import Any, cast, Dict, List, Optional
+from typing import Any, cast, Dict, List, Optional, Union
 
 from paradox.config import config
 from paradox.lib import ps
@@ -21,7 +21,7 @@ class ParadoxAlarm(Peripheral):
 
     def __init__(
         self,
-        name: str,
+        name: Optional[str] = None,
         areas: List[int] = None,
         zones: List[int] = None,
         outputs: List[int] = None,
@@ -240,14 +240,14 @@ class ParadoxAlarm(Peripheral):
             except Exception as e:
                 self.error('property change handler execution failed: %s', e, exc_info=True)
 
-    def get_property(self, _type: str, _id: Optional[str], name: str) -> Property:
+    def get_property(self, _type: str, _id: Optional[Union[str, int]], name: str) -> Property:
         if _type == 'system':
             return self._properties.get(_type, {}).get(name)
 
         else:
             return self._properties.get(_type, {}).get(_id, {}).get(name)
 
-    def get_properties(self, _type: str, _id: Optional[str]) -> Dict[str, Property]:
+    def get_properties(self, _type: str, _id: Optional[Union[str, int]]) -> Dict[str, Property]:
         if _type == 'system':
             return self._properties.get(_type, {})
 

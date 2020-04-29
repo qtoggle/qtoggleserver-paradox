@@ -20,10 +20,10 @@ class AreaPort(ParadoxPort, metaclass=ABCMeta):
         return self.get_property('label') or f'Area {self.area}'
 
     def get_property(self, name: str) -> Optional[Property]:
-        return self.get_peripheral().get_property('partition', str(self.area), name)
+        return self.get_peripheral().get_property('partition', self.area, name)
 
     def get_properties(self) -> Dict[str, Property]:
-        return self.get_peripheral().get_properties('partition', str(self.area))
+        return self.get_peripheral().get_properties('partition', self.area)
 
 
 class AreaArmedPort(AreaPort):

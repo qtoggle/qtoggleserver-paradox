@@ -19,10 +19,10 @@ class OutputPort(ParadoxPort, metaclass=ABCMeta):
         return self.get_property('label') or f'Output {self.output}'
 
     def get_property(self, name: str) -> Property:
-        return self.get_peripheral().get_property('pgm', str(self.output), name)
+        return self.get_peripheral().get_property('pgm', self.output, name)
 
     def get_properties(self) -> Dict[str, Property]:
-        return self.get_peripheral().get_properties('pgm', str(self.output))
+        return self.get_peripheral().get_properties('pgm', self.output)
 
 
 class OutputTroublePort(OutputPort):

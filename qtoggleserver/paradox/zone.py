@@ -19,10 +19,10 @@ class ZonePort(ParadoxPort, metaclass=ABCMeta):
         return self.get_property('label') or f'Zone {self.zone}'
 
     def get_property(self, name: str) -> Property:
-        return self.get_peripheral().get_property('zone', str(self.zone), name)
+        return self.get_peripheral().get_property('zone', self.zone, name)
 
     def get_properties(self) -> Dict[str, Property]:
-        return self.get_peripheral().get_properties('zone', str(self.zone))
+        return self.get_peripheral().get_properties('zone', self.zone)
 
 
 class ZoneOpenPort(ZonePort):

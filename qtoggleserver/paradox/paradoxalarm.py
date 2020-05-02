@@ -22,7 +22,6 @@ class ParadoxAlarm(Peripheral):
     def __init__(
         self,
         *,
-        name: Optional[str] = None,
         areas: List[int] = None,
         zones: List[int] = None,
         outputs: List[int] = None,
@@ -31,6 +30,7 @@ class ParadoxAlarm(Peripheral):
         ip_host: Optional[str] = None,
         ip_port: int = constants.DEFAULT_IP_PORT,
         ip_password: str = constants.DEFAULT_IP_PASSWORD,
+        **kwargs
     ) -> None:
 
         self.setup_config()
@@ -54,7 +54,7 @@ class ParadoxAlarm(Peripheral):
 
         self._properties = {}
 
-        super().__init__(name)
+        super().__init__(**kwargs)
 
     @staticmethod
     def setup_config() -> None:
@@ -113,7 +113,7 @@ class ParadoxAlarm(Peripheral):
             raise exceptions.ParadoxConnectError()
 
         self.debug('connected to panel')
-        asyncio.create_task(self.handle_connected())
+        await self.handle_connected()
 
     def make_port_args(self) -> List[Dict[str, Any]]:
         from .area import AreaAlarmPort, AreaArmedPort
@@ -138,7 +138,7 @@ class ParadoxAlarm(Peripheral):
         self._panel_task = asyncio.create_task(self._paradox.loop())
 
         self.parse_labels()
-        self.trigger_port_update()
+        await self.trigger_port_update()
 
     async def disconnect(self) -> None:
         if self._panel_task is None:
@@ -154,7 +154,7 @@ class ParadoxAlarm(Peripheral):
 
         self._paradox = None
 
-        self.trigger_port_update()
+        await self.trigger_port_update()
 
         try:
             await asyncio.wait_for(self._panel_task, timeout=10)

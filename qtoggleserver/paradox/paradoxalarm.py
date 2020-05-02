@@ -21,6 +21,7 @@ class ParadoxAlarm(Peripheral):
 
     def __init__(
         self,
+        *,
         name: Optional[str] = None,
         areas: List[int] = None,
         zones: List[int] = None,

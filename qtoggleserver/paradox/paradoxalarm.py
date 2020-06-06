@@ -115,7 +115,7 @@ class ParadoxAlarm(Peripheral):
         self.debug('connected to panel')
         await self.handle_connected()
 
-    def make_port_args(self) -> List[Dict[str, Any]]:
+    async def make_port_args(self) -> List[Dict[str, Any]]:
         from .area import AreaAlarmPort, AreaArmedPort
         from .output import OutputTamperPort, OutputTroublePort
         from .zone import ZoneAlarmPort, ZoneOpenPort, ZoneTamperPort, ZoneTroublePort

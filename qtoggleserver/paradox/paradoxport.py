@@ -10,8 +10,6 @@ from .typing import Property
 
 
 class ParadoxPort(PeripheralPort, metaclass=abc.ABCMeta):
-    CMD_TIMEOUT = 60
-
     def on_property_change(
         self,
         _type: str,

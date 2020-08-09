@@ -12,9 +12,9 @@ from .typing import Property
 class ParadoxPort(PeripheralPort, metaclass=abc.ABCMeta):
     def on_property_change(
         self,
-        _type: str,
-        _id: Optional[str],
-        _property: str,
+        type_: str,
+        id_: Optional[str],
+        property_: str,
         old_value: Property,
         new_value: Property
     ) -> None:

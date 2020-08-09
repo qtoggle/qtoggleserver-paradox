@@ -98,10 +98,10 @@ class ParadoxAlarm(Peripheral):
         for output in self._paradox.storage.data['pgm'].values():
             self.debug('detected output id=%s, label=%s', output['id'], json_utils.dumps(output['label']))
 
-        for _type, entries in self._paradox.storage.data.items():
+        for type_, entries in self._paradox.storage.data.items():
             for entry in entries.values():
                 if 'label' in entry:
-                    self._properties.setdefault(_type, {}).setdefault(entry['id'], {})['label'] = entry['label']
+                    self._properties.setdefault(type_, {}).setdefault(entry['id'], {})['label'] = entry['label']
 
     async def connect(self) -> None:
         self.debug('connecting to panel')
@@ -213,18 +213,18 @@ class ParadoxAlarm(Peripheral):
 
         info = self._paradox.storage.data[change.type].get(change.key)
         if info and ('id' in info):
-            _id = info['id']
+            id_ = info['id']
             self.debug(
-                'property change: %s[%s].%s: %s -> %s', change.type, _id, change.property,
+                'property change: %s[%s].%s: %s -> %s', change.type, id_, change.property,
                 json_utils.dumps(change.old_value, allow_extended_types=True),
                 json_utils.dumps(change.new_value, allow_extended_types=True)
             )
-            obj = self._properties.setdefault(change.type, {}).setdefault(_id, {})
+            obj = self._properties.setdefault(change.type, {}).setdefault(id_, {})
             obj[change.property] = change.new_value
             obj['label'] = info['label']
 
         else:
-            _id = None
+            id_ = None
             self.debug(
                 'property change: %s.%s: %s -> %s', change.type, change.property,
                 json_utils.dumps(change.old_value, allow_extended_types=True),
@@ -236,24 +236,24 @@ class ParadoxAlarm(Peripheral):
             pai_port = cast(ParadoxPort, port)
 
             try:
-                pai_port.on_property_change(change.type, _id, change.property, change.old_value, change.new_value)
+                pai_port.on_property_change(change.type, id_, change.property, change.old_value, change.new_value)
 
             except Exception as e:
                 self.error('property change handler execution failed: %s', e, exc_info=True)
 
-    def get_property(self, _type: str, _id: Optional[Union[str, int]], name: str) -> Property:
-        if _type == 'system':
-            return self._properties.get(_type, {}).get(name)
+    def get_property(self, type_: str, id_: Optional[Union[str, int]], name: str) -> Property:
+        if type_ == 'system':
+            return self._properties.get(type_, {}).get(name)
 
         else:
-            return self._properties.get(_type, {}).get(_id, {}).get(name)
+            return self._properties.get(type_, {}).get(id_, {}).get(name)
 
-    def get_properties(self, _type: str, _id: Optional[Union[str, int]]) -> Dict[str, Property]:
-        if _type == 'system':
-            return self._properties.get(_type, {})
+    def get_properties(self, type_: str, id_: Optional[Union[str, int]]) -> Dict[str, Property]:
+        if type_ == 'system':
+            return self._properties.get(type_, {})
 
         else:
-            return self._properties.get(_type, {}).get(_id, {})
+            return self._properties.get(type_, {}).get(id_, {})
 
     async def set_area_armed_mode(self, area: int, armed_mode: str) -> None:
         self.debug('area %s: set armed mode to %s', area, armed_mode)

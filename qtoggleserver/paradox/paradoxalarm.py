@@ -109,7 +109,7 @@ class ParadoxAlarm(Peripheral):
         if not self._paradox:
             self._paradox = self.make_paradox()
 
-        if not await self._paradox.connect():
+        if not await self._paradox.full_connect():
             raise exceptions.ParadoxConnectError()
 
         self.debug('connected to panel')
@@ -146,7 +146,7 @@ class ParadoxAlarm(Peripheral):
 
         self.debug('disconnecting')
         try:
-            self._paradox.disconnect()
+            await self._paradox.disconnect()
 
         except ConnectionError as e:
             # PAI may raise ConnectionError when disconnecting, so we catch it here and ignore it

@@ -87,7 +87,7 @@ class AreaArmedPort(AreaPort):
             self.debug('state transition: %s -> %s', self._last_state, current_state)
             self._last_state = current_state
 
-            if current_state != 'pending':
+            if current_state not in ('pending', 'arming'):
                 self._last_non_pending_state = current_state
                 if self._requested_value is not None:  # Pending value requested via qToggle
                     requested_state = self._ARMED_STATE_MAPPING[self._requested_value]
@@ -104,7 +104,7 @@ class AreaArmedPort(AreaPort):
             return -self._requested_value
 
         else:
-            if current_state == 'pending':
+            if current_state in ('pending', 'arming'):
                 # If state is pending but we don't have a requested value, it's probably arming/disarming via some
                 # other external means. The best we can do is to indicate the opposite state as pending.
                 opposite_state = self._OPPOSITE_ARMED_STATE_MAPPING[self._last_non_pending_state]

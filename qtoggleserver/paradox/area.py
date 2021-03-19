@@ -49,10 +49,12 @@ class AreaArmedPort(AreaPort):
         'armed_away': 2,
         'armed_night': 3,
         'armed_home': 4,
+        'triggered': 5,
         1: 'disarmed',
         2: 'armed_away',
         3: 'armed_night',
         4: 'armed_home',
+        5: 'triggered'
     }
 
     _OPPOSITE_ARMED_STATE_MAPPING = {
@@ -107,7 +109,9 @@ class AreaArmedPort(AreaPort):
             if current_state in ('pending', 'arming'):
                 # If state is pending but we don't have a requested value, it's probably arming/disarming via some
                 # other external means. The best we can do is to indicate the opposite state as pending.
-                opposite_state = self._OPPOSITE_ARMED_STATE_MAPPING[self._last_non_pending_state]
+                opposite_state = self._OPPOSITE_ARMED_STATE_MAPPING.get(
+                    self._last_non_pending_state, self._last_non_pending_state
+                )
                 return -self._ARMED_STATE_MAPPING[opposite_state]
 
             else:

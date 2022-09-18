@@ -2,6 +2,7 @@
 import asyncio
 import logging
 
+from types import SimpleNamespace
 from typing import Any, cast, Dict, List, Optional, Union
 
 from paradox.config import config
@@ -17,6 +18,8 @@ from .typing import Property
 
 
 class ParadoxAlarm(Peripheral):
+    SUPERVISOR_LOOP_INTERVAL = 5
+
     logger = logging.getLogger(__name__)
 
     def __init__(
@@ -32,7 +35,6 @@ class ParadoxAlarm(Peripheral):
         ip_password: str = constants.DEFAULT_IP_PASSWORD,
         **kwargs
     ) -> None:
-
         self.setup_config()
         self.setup_logging()
 
@@ -48,7 +50,7 @@ class ParadoxAlarm(Peripheral):
 
         self._paradox = None
         self._panel_task = None
-        self._check_connection_task = asyncio.create_task(self._check_connection_loop())
+        self._supervisor_task = asyncio.create_task(self._supervisor_loop())
 
         ps.subscribe(self.handle_paradox_property_change, 'changes')
 
@@ -172,11 +174,11 @@ class ParadoxAlarm(Peripheral):
 
         self._panel_task = None
 
-    async def _check_connection_loop(self) -> None:
+    async def _supervisor_loop(self) -> None:
         connect_succeeded = False
 
-        try:
-            while True:
+        while True:
+            try:
                 connected = (
                     self._paradox and
                     self._paradox.connection and
@@ -190,7 +192,6 @@ class ParadoxAlarm(Peripheral):
                     try:
                         await self.connect()
                         connect_succeeded = True
-
                     except Exception as e:
                         self.error('failed to connect: %s', e, exc_info=True)
 
@@ -199,18 +200,28 @@ class ParadoxAlarm(Peripheral):
 
                     try:
                         await self.disconnect()
-
                     except Exception as e:
                         self.error('failed to disconnect: %s', e, exc_info=True)
 
-                await asyncio.sleep(1)
+                if self._paradox:
+                    self._update_properties()
 
-        except asyncio.CancelledError:
-            pass
+                await asyncio.sleep(self.SUPERVISOR_LOOP_INTERVAL)
+
+            except Exception as e:
+                self.error('supervisor loop error: %s', e, exc_info=True)
+                await asyncio.sleep(self.SUPERVISOR_LOOP_INTERVAL)
+
+            except asyncio.CancelledError:
+                self.debug('supervisor loop cancelled')
+                break
 
     async def handle_cleanup(self) -> None:
         await super().handle_cleanup()
         await self.disconnect()
+        if self._supervisor_task:
+            self._supervisor_task.cancel()
+            await self._supervisor_task
 
     def handle_paradox_property_change(self, change: Any) -> None:
         from .paradoxport import ParadoxPort
@@ -241,7 +252,6 @@ class ParadoxAlarm(Peripheral):
 
             try:
                 pai_port.on_property_change(change.type, id_, change.property, change.old_value, change.new_value)
-
             except Exception as e:
                 self.error('property change handler execution failed: %s', e, exc_info=True)
 
@@ -258,6 +268,54 @@ class ParadoxAlarm(Peripheral):
 
         else:
             return self._properties.get(type_, {}).get(id_, {})
+
+    def _update_properties(self) -> None:
+        changes = []
+
+        for type_, properties in self._properties.items():
+            type_info = self._paradox.storage.data.get(type_)
+            if type_info is None:
+                continue
+            if isinstance(next(iter(self._properties[type_].values())), dict):  # properties with id
+                for id_, props in properties.items():
+                    id_info = type_info.get(id_)
+                    if id_info is None:
+                        continue
+                    for prop, old_value in props.items():
+                        new_value = id_info[prop]
+                        if old_value != new_value:
+                            changes.append(
+                                SimpleNamespace(
+                                    type=type_,
+                                    key=id_,
+                                    property=prop,
+                                    old_value=old_value,
+                                    new_value=new_value,
+                                )
+                            )
+            else:
+                # Flatten properties without id
+                new_properties = {}
+                for _, props in type_info.items():
+                    new_properties.update(props)
+
+                for prop, old_value in properties.items():
+                    new_value = new_properties.get(prop)
+                    if new_value is None:
+                        continue
+                    if old_value != new_value:
+                        changes.append(
+                            SimpleNamespace(
+                                type=type_,
+                                key=None,
+                                property=prop,
+                                old_value=old_value,
+                                new_value=new_value,
+                            )
+                        )
+
+            for change in changes:
+                self.handle_paradox_property_change(change)
 
     async def set_area_armed_mode(self, area: int, armed_mode: str) -> None:
         self.debug('area %s: set armed mode to %s', area, armed_mode)

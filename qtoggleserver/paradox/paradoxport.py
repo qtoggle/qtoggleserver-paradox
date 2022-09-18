@@ -18,7 +18,6 @@ class ParadoxPort(PeripheralPort, metaclass=abc.ABCMeta):
         old_value: Property,
         new_value: Property
     ) -> None:
-
         pass
 
     def get_peripheral(self) -> ParadoxAlarm:

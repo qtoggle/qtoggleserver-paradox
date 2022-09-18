@@ -5,7 +5,7 @@ import logging
 from typing import Any, cast, Dict, List, Optional, Union
 
 from paradox.config import config
-from paradox.lib import ps
+from paradox.lib import ps, encodings
 from paradox.paradox import Paradox
 
 from qtoggleserver.peripherals import Peripheral
@@ -65,10 +65,14 @@ class ParadoxAlarm(Peripheral):
 
             setattr(config, k, v)
 
+        config.SYNC_TIME = True
+        encodings.register_encodings()
+
     @staticmethod
     def setup_logging() -> None:
         logging.getLogger('PAI').setLevel(logging.ERROR)
         logging.getLogger('PAI.paradox.lib.async_message_manager').setLevel(logging.CRITICAL)
+        logging.getLogger('PAI.paradox.lib.handlers').setLevel(logging.CRITICAL)
 
     def make_paradox(self) -> Paradox:
         if self._serial_port:

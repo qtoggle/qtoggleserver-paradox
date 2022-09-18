@@ -119,7 +119,7 @@ class AreaArmedPort(AreaPort):
 
     async def write_value(self, value: int) -> None:
         self._requested_value = value
-        await self.get_peripheral().set_area_armed_mode(self.area, self._ARMED_MODE_MAPPING[value])
+        await self.get_peripheral().set_area_armed_mode(self.area, self._ARMED_MODE_MAPPING[abs(value)])
 
 
 class AreaAlarmPort(AreaPort):

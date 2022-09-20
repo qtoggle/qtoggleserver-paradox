@@ -3,7 +3,7 @@ import asyncio
 import logging
 
 from types import SimpleNamespace
-from typing import Any, cast, Dict, List, Optional, Union
+from typing import Any, cast, Optional, Union
 
 from paradox.config import config
 from paradox.lib import ps, encodings
@@ -25,9 +25,9 @@ class ParadoxAlarm(Peripheral):
     def __init__(
         self,
         *,
-        areas: List[int] = None,
-        zones: List[int] = None,
-        outputs: List[int] = None,
+        areas: list[int] = None,
+        zones: list[int] = None,
+        outputs: list[int] = None,
         serial_port: Optional[str] = None,
         serial_baud: int = constants.DEFAULT_SERIAL_BAUD,
         ip_host: Optional[str] = None,
@@ -121,7 +121,7 @@ class ParadoxAlarm(Peripheral):
         self.debug('connected to panel')
         await self.handle_connected()
 
-    async def make_port_args(self) -> List[Dict[str, Any]]:
+    async def make_port_args(self) -> list[dict[str, Any]]:
         from .area import AreaAlarmPort, AreaArmedPort
         from .output import OutputTamperPort, OutputTroublePort
         from .zone import ZoneAlarmPort, ZoneOpenPort, ZoneTamperPort, ZoneTroublePort
@@ -262,7 +262,7 @@ class ParadoxAlarm(Peripheral):
         else:
             return self._properties.get(type_, {}).get(id_, {}).get(name)
 
-    def get_properties(self, type_: str, id_: Optional[Union[str, int]]) -> Dict[str, Property]:
+    def get_properties(self, type_: str, id_: Optional[Union[str, int]]) -> dict[str, Property]:
         if type_ == 'system':
             return self._properties.get(type_, {})
 

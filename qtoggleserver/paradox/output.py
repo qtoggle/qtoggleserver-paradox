@@ -1,6 +1,6 @@
 
 from abc import ABCMeta
-from typing import Dict, Optional
+from typing import Optional
 
 from .paradoxport import ParadoxPort
 from .typing import Property
@@ -21,7 +21,7 @@ class OutputPort(ParadoxPort, metaclass=ABCMeta):
     def get_property(self, name: str) -> Property:
         return self.get_peripheral().get_property('pgm', self.output, name)
 
-    def get_properties(self) -> Dict[str, Property]:
+    def get_properties(self) -> dict[str, Property]:
         return self.get_peripheral().get_properties('pgm', self.output)
 
 

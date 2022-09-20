@@ -1,6 +1,6 @@
 
 from abc import ABCMeta
-from typing import Dict, Optional
+from typing import Optional
 
 from . import constants
 from .paradoxport import ParadoxPort
@@ -22,7 +22,7 @@ class AreaPort(ParadoxPort, metaclass=ABCMeta):
     def get_property(self, name: str) -> Optional[Property]:
         return self.get_peripheral().get_property('partition', self.area, name)
 
-    def get_properties(self) -> Dict[str, Property]:
+    def get_properties(self) -> dict[str, Property]:
         return self.get_peripheral().get_properties('partition', self.area)
 
 

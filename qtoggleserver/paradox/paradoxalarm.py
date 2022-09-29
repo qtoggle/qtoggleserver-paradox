@@ -152,7 +152,6 @@ class ParadoxAlarm(Peripheral):
         self.debug('disconnecting')
         try:
             await self._paradox.disconnect()
-
         except ConnectionError as e:
             # PAI may raise ConnectionError when disconnecting, so we catch it here and ignore it
             self.error('failed to disconnect from panel: %s', e, exc_info=True)
@@ -163,11 +162,9 @@ class ParadoxAlarm(Peripheral):
 
         try:
             await asyncio.wait_for(self._panel_task, timeout=10)
-
         except asyncio.TimeoutError:
             self.error('timeout waiting for panel task end')
             self._panel_task.cancel()
-
         else:
             self.debug('disconnected')
 
@@ -206,11 +203,9 @@ class ParadoxAlarm(Peripheral):
                     self._update_properties()
 
                 await asyncio.sleep(self.SUPERVISOR_LOOP_INTERVAL)
-
             except Exception as e:
                 self.error('supervisor loop error: %s', e, exc_info=True)
                 await asyncio.sleep(self.SUPERVISOR_LOOP_INTERVAL)
-
             except asyncio.CancelledError:
                 self.debug('supervisor loop cancelled')
                 break

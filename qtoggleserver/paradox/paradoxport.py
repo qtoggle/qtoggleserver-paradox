@@ -1,4 +1,3 @@
-
 import abc
 
 from typing import cast, Optional

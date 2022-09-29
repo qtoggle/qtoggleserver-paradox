@@ -1,4 +1,3 @@
-
 from .paradoxalarm import ParadoxAlarm
 
 

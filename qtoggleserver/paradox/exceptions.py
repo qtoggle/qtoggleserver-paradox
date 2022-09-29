@@ -1,4 +1,3 @@
-
 class ParadoxException(Exception):
     pass
 

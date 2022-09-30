@@ -73,7 +73,7 @@ class AreaArmedPort(AreaPort):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self._requested_value: Optional[int] = None  # Used to cache written value while pending
+        self._requested_value: Optional[int] = None  # used to cache written value while pending
         self._last_state: str = self.get_property('current_state') or self._DEFAULT_STATE
         self._last_non_pending_state: str = self._last_state
 
@@ -90,20 +90,18 @@ class AreaArmedPort(AreaPort):
 
             if current_state not in ('pending', 'arming'):
                 self._last_non_pending_state = current_state
-                if self._requested_value is not None:  # Pending value requested via qToggle
+                if self._requested_value is not None:  # pending value requested via qToggle
                     requested_state = self._ARMED_STATE_MAPPING[self._requested_value]
                     self._requested_value = None
 
                     if current_state == requested_state:
                         self.debug('requested state %s fulfilled', requested_state)
-
                     else:
                         self.debug('requested state %s not fulfilled', requested_state)
 
         # Decide upon returned value
         if self._requested_value is not None:
             return -self._requested_value
-
         else:
             if current_state in ('pending', 'arming'):
                 # If state is pending but we don't have a requested value, it's probably arming/disarming via some
@@ -112,7 +110,6 @@ class AreaArmedPort(AreaPort):
                     self._last_non_pending_state, self._last_non_pending_state
                 )
                 return -self._ARMED_STATE_MAPPING[opposite_state]
-
             else:
                 return self._ARMED_STATE_MAPPING[current_state]
 

@@ -82,7 +82,6 @@ class ParadoxAlarm(Peripheral):
             config.SERIAL_BAUD = self._serial_baud
 
             self.debug('using serial connection on %s:%s', config.SERIAL_PORT, config.SERIAL_BAUD)
-
         else:  # IP connection, e.g. 192.168.1.2:10000:paradox
             config.CONNECTION_TYPE = 'IP'
             config.IP_CONNECTION_HOST = self._ip_host
@@ -190,7 +189,6 @@ class ParadoxAlarm(Peripheral):
                         connect_succeeded = True
                     except Exception as e:
                         self.error('failed to connect: %s', e, exc_info=True)
-
                 elif not self.is_enabled() and connected:
                     connect_succeeded = False
 
@@ -231,7 +229,6 @@ class ParadoxAlarm(Peripheral):
             obj = self._properties.setdefault(change.type, {}).setdefault(id_, {})
             obj[change.property] = change.new_value
             obj['label'] = info['label']
-
         else:
             id_ = None
             self.debug(
@@ -252,14 +249,12 @@ class ParadoxAlarm(Peripheral):
     def get_property(self, type_: str, id_: Optional[Union[str, int]], name: str) -> Property:
         if type_ == 'system':
             return self._properties.get(type_, {}).get(name)
-
         else:
             return self._properties.get(type_, {}).get(id_, {}).get(name)
 
     def get_properties(self, type_: str, id_: Optional[Union[str, int]]) -> dict[str, Property]:
         if type_ == 'system':
             return self._properties.get(type_, {})
-
         else:
             return self._properties.get(type_, {}).get(id_, {})
 

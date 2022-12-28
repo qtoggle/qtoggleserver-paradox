@@ -205,7 +205,7 @@ class ParadoxAlarm(Peripheral):
                 self.error('supervisor loop error: %s', e, exc_info=True)
                 await asyncio.sleep(self.SUPERVISOR_LOOP_INTERVAL)
             except asyncio.CancelledError:
-                self.debug('supervisor loop cancelled')
+                self.debug('supervisor task cancelled')
                 break
 
     async def handle_cleanup(self) -> None:

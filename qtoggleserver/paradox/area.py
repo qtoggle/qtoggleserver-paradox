@@ -104,7 +104,7 @@ class AreaArmedPort(AreaPort):
             return -self._requested_value
         else:
             if current_state in ('pending', 'arming'):
-                # If state is pending but we don't have a requested value, it's probably arming/disarming via some
+                # If state is pending, but we don't have a requested value, it's probably arming/disarming via some
                 # other external means. The best we can do is to indicate the opposite state as pending.
                 opposite_state = self._OPPOSITE_ARMED_STATE_MAPPING.get(
                     self._last_non_pending_state, self._last_non_pending_state

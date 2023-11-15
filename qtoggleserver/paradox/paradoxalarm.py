@@ -223,8 +223,8 @@ class ParadoxAlarm(Peripheral):
             id_ = info['id']
             self.debug(
                 'property change: %s[%s].%s: %s -> %s', change.type, id_, change.property,
-                json_utils.dumps(change.old_value, allow_extended_types=True),
-                json_utils.dumps(change.new_value, allow_extended_types=True)
+                json_utils.dumps(change.old_value, extra_types=json_utils.EXTRA_TYPES_EXTENDED),
+                json_utils.dumps(change.new_value, extra_types=json_utils.EXTRA_TYPES_EXTENDED)
             )
             obj = self._properties.setdefault(change.type, {}).setdefault(id_, {})
             obj[change.property] = change.new_value
@@ -233,8 +233,8 @@ class ParadoxAlarm(Peripheral):
             id_ = None
             self.debug(
                 'property change: %s.%s: %s -> %s', change.type, change.property,
-                json_utils.dumps(change.old_value, allow_extended_types=True),
-                json_utils.dumps(change.new_value, allow_extended_types=True)
+                json_utils.dumps(change.old_value, extra_types=json_utils.EXTRA_TYPES_EXTENDED),
+                json_utils.dumps(change.new_value, extra_types=json_utils.EXTRA_TYPES_EXTENDED)
             )
             self._properties.setdefault(change.type, {})[change.property] = change.new_value
 

@@ -30,6 +30,7 @@ peripherals = [
         ip_host = "192.168.1.2"         # specify either this or serial_port, not both
         ip_port = 10000                 # this is the default
         ip_password = "paradox"         # this is the default 
+        panel_password = "1234"         # this is the default
     }
     ...
 ]

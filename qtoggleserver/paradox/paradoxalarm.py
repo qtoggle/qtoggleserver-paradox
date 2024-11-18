@@ -32,6 +32,7 @@ class ParadoxAlarm(Peripheral):
         ip_host: Optional[str] = None,
         ip_port: int = constants.DEFAULT_IP_PORT,
         ip_password: str = constants.DEFAULT_IP_PASSWORD,
+        panel_password: str = constants.DEFAULT_PANEL_PASSWORD,
         **kwargs
     ) -> None:
         self.setup_config()
@@ -46,6 +47,7 @@ class ParadoxAlarm(Peripheral):
         self._ip_host = ip_host
         self._ip_port = ip_port
         self._ip_password = ip_password
+        self._panel_password = panel_password
 
         self._paradox = None
         self._panel_task = None
@@ -80,6 +82,9 @@ class ParadoxAlarm(Peripheral):
             config.CONNECTION_TYPE = 'Serial'
             config.SERIAL_PORT = self._serial_port
             config.SERIAL_BAUD = self._serial_baud
+            config.IO_TIMEOUT = 10
+            config.LOGGING_DUMP_PACKETS = True
+            config.LOGGING_DUMP_MESSAGES = True
 
             self.debug('using serial connection on %s:%s', config.SERIAL_PORT, config.SERIAL_BAUD)
         else:  # IP connection, e.g. 192.168.1.2:10000:paradox
@@ -87,8 +92,11 @@ class ParadoxAlarm(Peripheral):
             config.IP_CONNECTION_HOST = self._ip_host
             config.IP_CONNECTION_PORT = self._ip_port
             config.IP_CONNECTION_PASSWORD = self._ip_password.encode()
+            config.IP_INTERFACE_PASSWORD = self._ip_password.encode()
 
             self.debug('using IP connection on %s:%s', config.IP_CONNECTION_HOST, config.IP_CONNECTION_PORT)
+
+        config.PASSWORD = self._panel_password.encode()
 
         return Paradox()
 

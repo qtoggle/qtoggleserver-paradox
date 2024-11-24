@@ -42,6 +42,7 @@ class OutputTroublePort(OutputPort):
 
 
 class OutputTamperPort(OutputPort):
+    # TODO: this should actually be an output port
     TYPE = 'boolean'
     WRITABLE = False
 

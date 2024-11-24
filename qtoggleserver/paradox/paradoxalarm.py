@@ -27,6 +27,9 @@ class ParadoxAlarm(Peripheral):
         areas: list[int] = None,
         zones: list[int] = None,
         outputs: list[int] = None,
+        remotes: list[int] = None,
+        remote_buttons: dict[str, str] = None,
+        remote_buttons_timeout: int = constants.DEFAULT_REMOTE_BUTTONS_TIMEOUT,
         serial_port: Optional[str] = None,
         serial_baud: int = constants.DEFAULT_SERIAL_BAUD,
         ip_host: Optional[str] = None,
@@ -38,16 +41,19 @@ class ParadoxAlarm(Peripheral):
         self.setup_config()
         self.setup_logging()
 
-        self._areas = areas or []
-        self._zones = zones or []
-        self._outputs = outputs or []
+        self._areas: list[int] = areas or []
+        self._zones: list[int] = zones or []
+        self._outputs: list[int] = outputs or []
+        self._remotes: list[int] = remotes or []
+        self._remote_buttons: dict[int, str] = {int(k): v for k, v in (remote_buttons or {}).items()}
+        self._remote_buttons_timeout: int = remote_buttons_timeout
 
-        self._serial_port = serial_port
-        self._serial_baud = serial_baud
-        self._ip_host = ip_host
-        self._ip_port = ip_port
-        self._ip_password = ip_password
-        self._panel_password = panel_password
+        self._serial_port: Optional[str] = serial_port
+        self._serial_baud: int = serial_baud
+        self._ip_host: Optional[str] = ip_host
+        self._ip_port: int = ip_port
+        self._ip_password: str = ip_password
+        self._panel_password: str = panel_password
 
         self._paradox = None
         self._panel_task = None
@@ -130,8 +136,9 @@ class ParadoxAlarm(Peripheral):
     async def make_port_args(self) -> list[dict[str, Any]]:
         from .area import AreaAlarmPort, AreaArmedPort
         from .output import OutputTamperPort, OutputTroublePort
-        from .zone import ZoneAlarmPort, ZoneOpenPort, ZoneTamperPort, ZoneTroublePort
+        from .remote import AnyRemoteButtonPort, RemoteButtonPort
         from .system import SystemTroublePort
+        from .zone import ZoneAlarmPort, ZoneOpenPort, ZoneTamperPort, ZoneTroublePort
 
         port_args = []
         port_args += [{'driver': AreaAlarmPort, 'area': area} for area in self._areas]
@@ -143,6 +150,28 @@ class ParadoxAlarm(Peripheral):
         port_args += [{'driver': ZoneTamperPort, 'zone': zone} for zone in self._zones]
         port_args += [{'driver': ZoneTroublePort, 'zone': zone} for zone in self._zones]
         port_args += [{'driver': SystemTroublePort}]
+
+        for remote in self._remotes:
+            for button in self._remote_buttons.get(remote, []):
+                port_args.append(
+                    {
+                        'driver': RemoteButtonPort,
+                        'remote': remote,
+                        'button': button,
+                        'timeout': self._remote_buttons_timeout,
+                    }
+                )
+
+        any_remote_buttons = self._remote_buttons.get(0, [])
+        for button in any_remote_buttons:
+            port_args.append(
+                {
+                    'driver': AnyRemoteButtonPort,
+                    'remotes': self._remotes,
+                    'button': button,
+                    'timeout': self._remote_buttons_timeout,
+                }
+            )
 
         return port_args
 
@@ -254,7 +283,7 @@ class ParadoxAlarm(Peripheral):
             except Exception as e:
                 self.error('property change handler execution failed: %s', e, exc_info=True)
 
-    def get_property(self, type_: str, id_: Optional[Union[str, int]], name: str) -> Property:
+    def get_property(self, type_: str, id_: Optional[Union[str, int]], name: str) -> Optional[Property]:
         if type_ == 'system':
             return self._properties.get(type_, {}).get(name)
         else:

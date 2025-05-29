@@ -1,5 +1,4 @@
 from abc import ABCMeta
-from typing import Optional
 
 from .paradoxport import ParadoxPort
 from .typing import Property
@@ -7,21 +6,21 @@ from .typing import Property
 
 class SystemPort(ParadoxPort, metaclass=ABCMeta):
     def make_id(self) -> str:
-        return f'system.{self.ID}'
+        return f"system.{self.ID}"
 
     def get_property(self, name: str) -> Property:
-        return self.get_peripheral().get_property('system', None, name)
+        return self.get_peripheral().get_property("system", None, name)
 
     def get_properties(self) -> dict[str, Property]:
-        return self.get_peripheral().get_properties('system', None)
+        return self.get_peripheral().get_properties("system", None)
 
 
 class SystemTroublePort(SystemPort):
-    TYPE = 'boolean'
+    TYPE = "boolean"
     WRITABLE = False
-    DISPLAY_NAME = 'System Trouble'
+    DISPLAY_NAME = "System Trouble"
 
-    ID = 'trouble'
+    ID = "trouble"
 
-    async def read_value(self) -> Optional[bool]:
-        return self.get_property('trouble')
+    async def read_value(self) -> bool | None:
+        return self.get_property("trouble")

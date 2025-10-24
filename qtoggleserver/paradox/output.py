@@ -1,5 +1,4 @@
 from abc import ABCMeta
-from typing import Optional
 
 from .paradoxport import ParadoxPort
 from .typing import Property
@@ -12,30 +11,30 @@ class OutputPort(ParadoxPort, metaclass=ABCMeta):
         super().__init__(*args, **kwargs)
 
     def make_id(self) -> str:
-        return f'output{self.output}.{self.ID}'
+        return f"output{self.output}.{self.ID}"
 
     def get_output_label(self) -> str:
-        return self.get_property('label') or f'Output {self.output}'
+        return self.get_property("label") or f"Output {self.output}"
 
     def get_property(self, name: str) -> Property:
-        return self.get_peripheral().get_property('pgm', self.output, name)
+        return self.get_peripheral().get_property("pgm", self.output, name)
 
     def get_properties(self) -> dict[str, Property]:
-        return self.get_peripheral().get_properties('pgm', self.output)
+        return self.get_peripheral().get_properties("pgm", self.output)
 
 
 class OutputTroublePort(OutputPort):
-    TYPE = 'boolean'
+    TYPE = "boolean"
     WRITABLE = False
 
-    ID = 'trouble'
+    ID = "trouble"
 
     async def attr_get_default_display_name(self) -> str:
-        return f'{self.get_output_label()} Trouble'
+        return f"{self.get_output_label()} Trouble"
 
     async def read_value(self) -> bool:
         for name, value in self.get_properties().items():
-            if name.endswith('_trouble') and value:
+            if name.endswith("_trouble") and value:
                 return True
 
         return False
@@ -43,13 +42,13 @@ class OutputTroublePort(OutputPort):
 
 class OutputTamperPort(OutputPort):
     # TODO: this should actually be an output port
-    TYPE = 'boolean'
+    TYPE = "boolean"
     WRITABLE = False
 
-    ID = 'tamper'
+    ID = "tamper"
 
     async def attr_get_default_display_name(self) -> str:
-        return f'{self.get_output_label()} Tamper'
+        return f"{self.get_output_label()} Tamper"
 
-    async def read_value(self) -> Optional[bool]:
-        return self.get_property('tamper')
+    async def read_value(self) -> bool | None:
+        return self.get_property("tamper")

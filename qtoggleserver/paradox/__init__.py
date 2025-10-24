@@ -1,4 +1,6 @@
 from .paradoxalarm import ParadoxAlarm
 
 
-VERSION = 'unknown-version'
+__all__ = ["ParadoxAlarm"]
+
+VERSION = "0.0.0"

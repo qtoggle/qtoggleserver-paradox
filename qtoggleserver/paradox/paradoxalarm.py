@@ -4,11 +4,12 @@ import logging
 from types import SimpleNamespace
 from typing import Any, cast
 
+from qtoggleserver.peripherals import Peripheral
+from qtoggleserver.utils import json as json_utils
+
 from paradox.config import config
 from paradox.lib import encodings, ps
 from paradox.paradox import Paradox
-from qtoggleserver.peripherals import Peripheral
-from qtoggleserver.utils import json as json_utils
 
 from . import constants, exceptions
 from .typing import Property

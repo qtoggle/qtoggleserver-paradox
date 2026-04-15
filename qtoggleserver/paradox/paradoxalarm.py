@@ -246,7 +246,11 @@ class ParadoxAlarm(Peripheral):
 
     async def handle_cleanup(self) -> None:
         await super().handle_cleanup()
-        await self.disconnect()
+        try:
+            await self.disconnect()
+        except ConnectionError:
+            # We might already be disconnected or not yet connected
+            pass
         if self._supervisor_task:
             self._supervisor_task.cancel()
             await self._supervisor_task

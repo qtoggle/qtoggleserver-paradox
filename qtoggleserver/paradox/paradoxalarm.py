@@ -4,6 +4,7 @@ import logging
 from types import SimpleNamespace
 from typing import Any, cast
 
+from qtoggleserver.core import main as core_main
 from qtoggleserver.peripherals import Peripheral
 from qtoggleserver.utils import json as json_utils
 
@@ -234,7 +235,7 @@ class ParadoxAlarm(Peripheral):
                         self.error("failed to disconnect: %s", e, exc_info=True)
 
                 if self._paradox:
-                    self._update_properties()
+                    await self._update_properties()
 
                 await asyncio.sleep(self.SUPERVISOR_LOOP_INTERVAL)
             except Exception as e:
@@ -255,7 +256,7 @@ class ParadoxAlarm(Peripheral):
             self._supervisor_task.cancel()
             await self._supervisor_task
 
-    def handle_paradox_property_change(self, change: Any) -> None:
+    async def handle_paradox_property_change(self, change: Any, update_ports: bool = True) -> None:
         from .paradoxport import ParadoxPort
 
         info = self._paradox.storage.data[change.type].get(change.key)
@@ -291,6 +292,9 @@ class ParadoxAlarm(Peripheral):
             except Exception as e:
                 self.error("property change handler execution failed: %s", e, exc_info=True)
 
+        if update_ports:
+            await core_main.read_ports()
+
     def get_property(self, type_: str, id_: str | int | None, name: str) -> Property | None:
         if type_ == "system":
             return self._properties.get(type_, {}).get(name)
@@ -303,7 +307,7 @@ class ParadoxAlarm(Peripheral):
         else:
             return self._properties.get(type_, {}).get(id_, {})
 
-    def _update_properties(self) -> None:
+    async def _update_properties(self) -> None:
         changes = []
 
         for type_, properties in self._properties.items():
@@ -349,7 +353,7 @@ class ParadoxAlarm(Peripheral):
                         )
 
             for change in changes:
-                self.handle_paradox_property_change(change)
+                await self.handle_paradox_property_change(change, update_ports=False)
 
     async def set_area_armed_mode(self, area: int, armed_mode: str) -> None:
         self.debug("area %s: set armed mode to %s", area, armed_mode)

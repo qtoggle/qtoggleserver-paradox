@@ -293,7 +293,7 @@ class ParadoxAlarm(Peripheral):
                 self.error("property change handler execution failed: %s", e, exc_info=True)
 
         if update_ports:
-            await core_main.read_ports()
+            await core_main.read_ports(self.get_ports())
 
     def get_property(self, type_: str, id_: str | int | None, name: str) -> Property | None:
         if type_ == "system":

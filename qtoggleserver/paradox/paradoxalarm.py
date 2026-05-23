@@ -254,7 +254,10 @@ class ParadoxAlarm(Peripheral):
             pass
         if self._supervisor_task:
             self._supervisor_task.cancel()
-            await self._supervisor_task
+            try:
+                await self._supervisor_task
+            except asyncio.CancelledError:
+                pass
 
     async def handle_paradox_property_change(self, change: Any, update_ports: bool = True) -> None:
         from .paradoxport import ParadoxPort

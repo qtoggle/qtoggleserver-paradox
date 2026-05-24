@@ -1,8 +1,8 @@
 import asyncio
 import logging
 
-from types import SimpleNamespace
-from typing import Any, cast
+from types import MappingProxyType, SimpleNamespace
+from typing import Any, Iterator, Mapping, cast
 
 from qtoggleserver.core import main as core_main
 from qtoggleserver.peripherals import Peripheral
@@ -135,6 +135,7 @@ class ParadoxAlarm(Peripheral):
 
     async def make_port_args(self) -> list[dict[str, Any]]:
         from .area import AreaAlarmPort, AreaArmedPort
+        from .misc import NowAlarmZone, WasAlarmZone
         from .output import OutputTamperPort, OutputTroublePort
         from .remote import AnyRemoteButtonPort, RemoteButtonPort
         from .system import SystemTroublePort
@@ -151,6 +152,8 @@ class ParadoxAlarm(Peripheral):
         port_args += [{"driver": ZoneTamperPort, "zone": zone} for zone in self._zones]
         port_args += [{"driver": ZoneTroublePort, "zone": zone} for zone in self._zones]
         port_args += [{"driver": SystemTroublePort}]
+        port_args += [{"driver": WasAlarmZone}]
+        port_args += [{"driver": NowAlarmZone}]
 
         for remote in self._remotes:
             for button in self._remote_buttons.get(remote, []):
@@ -358,6 +361,21 @@ class ParadoxAlarm(Peripheral):
 
             for change in changes:
                 await self.handle_paradox_property_change(change, update_ports=False)
+
+    def get_areas(self) -> Iterator[int]:
+        return iter(self._areas)
+
+    def get_zones(self) -> Iterator[int]:
+        return iter(self._zones)
+
+    def get_outputs(self) -> Iterator[int]:
+        return iter(self._outputs)
+
+    def get_remotes(self) -> Iterator[int]:
+        return iter(self._remotes)
+
+    def get_remote_buttons(self) -> Mapping[int, str]:
+        return MappingProxyType(self._remote_buttons)
 
     async def set_area_armed_mode(self, area: int, armed_mode: str) -> None:
         self.debug("area %s: set armed mode to %s", area, armed_mode)

@@ -49,6 +49,19 @@ class ZoneAlarmPort(ZonePort):
         return self.get_property("alarm")
 
 
+class ZoneWasInAlarmPort(ZonePort):
+    TYPE = "boolean"
+    WRITABLE = False
+
+    ID = "was_in_alarm"
+
+    async def attr_get_default_display_name(self) -> str:
+        return f"{self.get_zone_label()} Was In Alarm"
+
+    async def read_value(self) -> bool | None:
+        return self.get_property("was_in_alarm")
+
+
 class ZoneTroublePort(ZonePort):
     TYPE = "boolean"
     WRITABLE = False

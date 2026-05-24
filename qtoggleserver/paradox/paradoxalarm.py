@@ -138,7 +138,7 @@ class ParadoxAlarm(Peripheral):
         from .output import OutputTamperPort, OutputTroublePort
         from .remote import AnyRemoteButtonPort, RemoteButtonPort
         from .system import SystemTroublePort
-        from .zone import ZoneAlarmPort, ZoneOpenPort, ZoneTamperPort, ZoneTroublePort
+        from .zone import ZoneAlarmPort, ZoneOpenPort, ZoneTamperPort, ZoneTroublePort, ZoneWasInAlarmPort
 
         port_args = []
         port_args += [{"driver": AreaAlarmPort, "area": area} for area in self._areas]
@@ -146,6 +146,7 @@ class ParadoxAlarm(Peripheral):
         port_args += [{"driver": OutputTamperPort, "output": output} for output in self._outputs]
         port_args += [{"driver": OutputTroublePort, "output": output} for output in self._outputs]
         port_args += [{"driver": ZoneAlarmPort, "zone": zone} for zone in self._zones]
+        port_args += [{"driver": ZoneWasInAlarmPort, "zone": zone} for zone in self._zones]
         port_args += [{"driver": ZoneOpenPort, "zone": zone} for zone in self._zones]
         port_args += [{"driver": ZoneTamperPort, "zone": zone} for zone in self._zones]
         port_args += [{"driver": ZoneTroublePort, "zone": zone} for zone in self._zones]

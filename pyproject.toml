@@ -9,7 +9,7 @@ requires-python = ">=3.14"
 readme = "README.md"
 license = {text = "Apache 2.0"}
 dependencies = [
-    "paradox-alarm-interface>=3,<4",
+    "paradox-alarm-interface>=3.8,<4",
     "pyserial",
     "pyserial-asyncio",
     "requests"

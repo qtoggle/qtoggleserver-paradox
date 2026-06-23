@@ -266,6 +266,9 @@ class ParadoxAlarm(Peripheral):
     async def handle_paradox_property_change(self, change: Any, update_ports: bool = True) -> None:
         from .paradoxport import ParadoxPort
 
+        if not self._paradox:
+            return
+
         info = self._paradox.storage.data[change.type].get(change.key)
         if info and ("id" in info):
             id_ = info["id"]

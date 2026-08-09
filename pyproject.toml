@@ -34,7 +34,4 @@ explicit_package_bases = true
 ignore_missing_imports = true
 
 [tool.uv.sources]
-paradox-alarm-interface = {
-    git = "https://github.com/ParadoxAlarmInterface/pai",
-    rev = "ffdad6eecbf4358bf70b83578bc68925ad140504",
-}
+paradox-alarm-interface = { git = "https://github.com/ParadoxAlarmInterface/pai", rev = "ffdad6eecbf4358bf70b83578bc68925ad140504" }

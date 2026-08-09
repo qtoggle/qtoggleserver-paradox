@@ -72,7 +72,7 @@ class AnyRemoteButtonPort(RemotePort):
         self.last_button_values: dict[int, int] = {}
         self.change_timestamps: dict[int, int] = {}
 
-        super().__init__(remote=0, *args, **kwargs)
+        super().__init__(0, *args, **kwargs)
 
     def make_id(self) -> str:
         return f"remote.{self.ID}_{self.button}"

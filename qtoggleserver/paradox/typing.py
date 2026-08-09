@@ -1,4 +1,1 @@
-from typing import TypeAlias, Union
-
-
-Property: TypeAlias = Union[int, bool, str]
+type Property = int | bool | str

@@ -1,8 +1,9 @@
 import asyncio
 import logging
 
+from collections.abc import Iterator, Mapping
 from types import MappingProxyType, SimpleNamespace
-from typing import Any, Iterator, Mapping, cast
+from typing import Any, cast
 
 from qtoggleserver.core import main as core_main
 from qtoggleserver.peripherals import Peripheral
@@ -344,7 +345,7 @@ class ParadoxAlarm(Peripheral):
             else:
                 # Flatten properties without id
                 new_properties = {}
-                for _, props in type_info.items():
+                for props in type_info.values():
                     new_properties.update(props)
 
                 for prop, old_value in properties.items():

@@ -9,7 +9,7 @@ requires-python = ">=3.14"
 readme = "README.md"
 license = {text = "Apache 2.0"}
 dependencies = [
-    "paradox-alarm-interface>=3.8,<4",
+    "paradox-alarm-interface",
     "pyserial",
     "pyserial-asyncio",
     "requests"
@@ -32,3 +32,9 @@ lint.isort.force-wrap-aliases = true
 [tool.mypy]
 explicit_package_bases = true
 ignore_missing_imports = true
+
+[tool.uv.sources]
+paradox-alarm-interface = {
+    git = "https://github.com/ParadoxAlarmInterface/pai",
+    rev = "ffdad6eecbf4358bf70b83578bc68925ad140504",
+}

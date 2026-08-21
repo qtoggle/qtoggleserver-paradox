@@ -1,5 +1,7 @@
 from abc import ABCMeta
 
+from qtoggleserver.core.typing import NullablePortValue
+
 from .paradoxport import ParadoxPort
 from .typing import Property
 
@@ -32,7 +34,7 @@ class ZoneOpenPort(ZonePort):
     async def attr_get_default_display_name(self) -> str:
         return f"{self.get_zone_label()} Open"
 
-    async def read_value(self) -> bool | None:
+    async def read_value(self) -> NullablePortValue:
         return self.get_property("open")
 
 
@@ -45,7 +47,7 @@ class ZoneAlarmPort(ZonePort):
     async def attr_get_default_display_name(self) -> str:
         return f"{self.get_zone_label()} Alarm"
 
-    async def read_value(self) -> bool | None:
+    async def read_value(self) -> NullablePortValue:
         return self.get_property("alarm")
 
 
@@ -58,7 +60,7 @@ class ZoneWasInAlarmPort(ZonePort):
     async def attr_get_default_display_name(self) -> str:
         return f"{self.get_zone_label()} Was In Alarm"
 
-    async def read_value(self) -> bool | None:
+    async def read_value(self) -> NullablePortValue:
         return self.get_property("was_in_alarm")
 
 
@@ -71,7 +73,7 @@ class ZoneTroublePort(ZonePort):
     async def attr_get_default_display_name(self) -> str:
         return f"{self.get_zone_label()} Trouble"
 
-    async def read_value(self) -> bool:
+    async def read_value(self) -> NullablePortValue:
         for name, value in self.get_properties().items():
             if name.endswith("_trouble") and value:
                 return True
@@ -88,5 +90,5 @@ class ZoneTamperPort(ZonePort):
     async def attr_get_default_display_name(self) -> str:
         return f"{self.get_zone_label()} Tamper"
 
-    async def read_value(self) -> bool | None:
+    async def read_value(self) -> NullablePortValue:
         return self.get_property("tamper")

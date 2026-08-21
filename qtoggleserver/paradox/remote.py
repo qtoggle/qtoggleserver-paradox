@@ -2,6 +2,8 @@ import time
 
 from abc import ABCMeta
 
+from qtoggleserver.core.typing import NullablePortValue
+
 from .paradoxport import ParadoxPort
 from .typing import Property
 
@@ -45,7 +47,7 @@ class RemoteButtonPort(RemotePort):
     async def attr_get_default_display_name(self) -> str:
         return f"{super().get_remote_label()} Button {self.button.upper()}"
 
-    async def read_value(self) -> bool:
+    async def read_value(self) -> NullablePortValue:
         now = int(time.time() * 1000)
         value = self.get_button_value()
         if value and value != self.last_button_value:
@@ -80,7 +82,7 @@ class AnyRemoteButtonPort(RemotePort):
     async def attr_get_default_display_name(self) -> str:
         return f"Remote Button {self.button.upper()}"
 
-    async def read_value(self) -> bool:
+    async def read_value(self) -> NullablePortValue:
         now = int(time.time() * 1000)
         for remote in self.remotes:
             value = self.get_button_value(remote)

@@ -1,5 +1,7 @@
 from abc import ABCMeta
 
+from qtoggleserver.core.typing import NullablePortValue
+
 from .paradoxport import ParadoxPort
 from .typing import Property
 
@@ -32,7 +34,7 @@ class OutputTroublePort(OutputPort):
     async def attr_get_default_display_name(self) -> str:
         return f"{self.get_output_label()} Trouble"
 
-    async def read_value(self) -> bool:
+    async def read_value(self) -> NullablePortValue:
         for name, value in self.get_properties().items():
             if name.endswith("_trouble") and value:
                 return True
@@ -50,5 +52,5 @@ class OutputTamperPort(OutputPort):
     async def attr_get_default_display_name(self) -> str:
         return f"{self.get_output_label()} Tamper"
 
-    async def read_value(self) -> bool | None:
+    async def read_value(self) -> NullablePortValue:
         return self.get_property("tamper")

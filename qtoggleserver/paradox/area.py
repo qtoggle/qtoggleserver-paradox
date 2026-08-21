@@ -1,6 +1,6 @@
 from abc import ABCMeta
 
-from qtoggleserver.core.typing import PortValue
+from qtoggleserver.core.typing import NullablePortValue, PortValue
 
 from . import constants
 from .paradoxport import ParadoxPort
@@ -81,7 +81,7 @@ class AreaArmedPort(AreaPort):
     async def attr_get_default_display_name(self) -> str:
         return f"{self.get_area_label()} Armed"
 
-    async def read_value(self) -> int | None:
+    async def read_value(self) -> NullablePortValue:
         current_state = self.get_property("current_state") or self._DEFAULT_STATE
 
         # Only act on transitions
@@ -128,5 +128,5 @@ class AreaAlarmPort(AreaPort):
     async def attr_get_default_display_name(self) -> str:
         return f"{self.get_area_label()} Alarm"
 
-    async def read_value(self) -> bool | None:
+    async def read_value(self) -> NullablePortValue:
         return self.get_property("alarm")

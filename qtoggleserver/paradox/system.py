@@ -1,5 +1,7 @@
 from abc import ABCMeta
 
+from qtoggleserver.core.typing import NullablePortValue
+
 from .paradoxport import ParadoxPort
 from .typing import Property
 
@@ -22,5 +24,5 @@ class SystemTroublePort(SystemPort):
 
     ID = "trouble"
 
-    async def read_value(self) -> bool | None:
+    async def read_value(self) -> NullablePortValue:
         return self.get_property("trouble")

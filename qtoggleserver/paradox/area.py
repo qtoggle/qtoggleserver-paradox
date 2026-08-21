@@ -1,5 +1,7 @@
 from abc import ABCMeta
 
+from qtoggleserver.core.typing import PortValue
+
 from . import constants
 from .paradoxport import ParadoxPort
 from .typing import Property
@@ -112,7 +114,7 @@ class AreaArmedPort(AreaPort):
             else:
                 return self._ARMED_STATE_MAPPING[current_state]
 
-    async def write_value(self, value: int) -> None:
+    async def write_value(self, value: PortValue) -> None:
         self._requested_value = value
         await self.get_peripheral().set_area_armed_mode(self.area, self._ARMED_MODE_MAPPING[abs(value)])
 

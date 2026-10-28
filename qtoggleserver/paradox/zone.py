@@ -24,6 +24,9 @@ class ZonePort(ParadoxPort, metaclass=ABCMeta):
     def get_properties(self) -> dict[str, Property]:
         return self.get_peripheral().get_properties("zone", self.zone)
 
+    def get_read_value_time(self) -> int | None:
+        return self.get_peripheral().get_properties_time("zone", self.zone)
+
 
 class ZoneOpenPort(ZonePort):
     TYPE = "boolean"

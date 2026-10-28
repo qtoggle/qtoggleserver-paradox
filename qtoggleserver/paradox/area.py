@@ -25,6 +25,9 @@ class AreaPort(ParadoxPort, metaclass=ABCMeta):
     def get_properties(self) -> dict[str, Property]:
         return self.get_peripheral().get_properties("partition", self.area)
 
+    def get_read_value_time(self) -> int | None:
+        return self.get_peripheral().get_properties_time("partition", self.area)
+
 
 class AreaArmedPort(AreaPort):
     TYPE = "number"
@@ -113,6 +116,11 @@ class AreaArmedPort(AreaPort):
                 return -self._ARMED_STATE_MAPPING[opposite_state]
             else:
                 return self._ARMED_STATE_MAPPING[current_state]
+
+    def get_read_value_time(self) -> int | None:
+        # The value is decided at read time from the requested value as well, and right after a write it already shows
+        # that value, never an older one
+        return None
 
     async def write_value(self, value: PortValue) -> None:
         self._requested_value = value

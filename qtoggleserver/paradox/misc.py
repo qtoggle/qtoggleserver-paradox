@@ -21,6 +21,9 @@ class NowAlarmZone(ParadoxPort, metaclass=ABCMeta):
 
         return 0
 
+    def get_read_value_time(self) -> int | None:
+        return self.get_peripheral().get_type_properties_time("zone")
+
 
 class WasAlarmZone(ParadoxPort, metaclass=ABCMeta):
     TYPE = "number"
@@ -37,3 +40,6 @@ class WasAlarmZone(ParadoxPort, metaclass=ABCMeta):
                 return zone
 
         return 0
+
+    def get_read_value_time(self) -> int | None:
+        return self.get_peripheral().get_type_properties_time("zone")

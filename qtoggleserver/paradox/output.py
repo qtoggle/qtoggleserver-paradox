@@ -24,6 +24,9 @@ class OutputPort(ParadoxPort, metaclass=ABCMeta):
     def get_properties(self) -> dict[str, Property]:
         return self.get_peripheral().get_properties("pgm", self.output)
 
+    def get_read_value_time(self) -> int | None:
+        return self.get_peripheral().get_properties_time("pgm", self.output)
+
 
 class OutputTroublePort(OutputPort):
     TYPE = "boolean"

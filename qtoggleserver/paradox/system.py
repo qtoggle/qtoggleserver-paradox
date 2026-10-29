@@ -16,6 +16,9 @@ class SystemPort(ParadoxPort, metaclass=ABCMeta):
     def get_properties(self) -> dict[str, Property]:
         return self.get_peripheral().get_properties("system", None)
 
+    def get_read_value_time(self) -> int | None:
+        return self.get_peripheral().get_properties_time("system", None)
+
 
 class SystemTroublePort(SystemPort):
     TYPE = "boolean"

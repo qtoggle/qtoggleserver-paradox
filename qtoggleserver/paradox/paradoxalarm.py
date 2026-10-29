@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 
 from collections.abc import Iterator, Mapping
 from types import MappingProxyType, SimpleNamespace
@@ -63,6 +64,8 @@ class ParadoxAlarm(Peripheral):
         ps.subscribe(self.handle_paradox_property_change, "changes")
 
         self._properties = {}
+        self._properties_time: dict[tuple[str, str | int | None], int] = {}
+        self._type_properties_time: dict[str, int] = {}
 
         super().__init__(**kwargs)
 
@@ -270,6 +273,7 @@ class ParadoxAlarm(Peripheral):
         if not self._paradox:
             return
 
+        now_ms = int(time.time() * 1000)
         info = self._paradox.storage.data[change.type].get(change.key)
         if info and ("id" in info):
             id_ = info["id"]
@@ -284,6 +288,7 @@ class ParadoxAlarm(Peripheral):
             obj = self._properties.setdefault(change.type, {}).setdefault(id_, {})
             obj[change.property] = change.new_value
             obj["label"] = info["label"]
+            self._properties_time[(change.type, id_)] = now_ms
         else:
             id_ = None
             self.debug(
@@ -294,6 +299,9 @@ class ParadoxAlarm(Peripheral):
                 json_utils.dumps(change.new_value, extra_types=json_utils.ExtraTypes.EXTENDED),
             )
             self._properties.setdefault(change.type, {})[change.property] = change.new_value
+            self._properties_time[(change.type, None)] = now_ms
+
+        self._type_properties_time[change.type] = now_ms
 
         for port in self.get_ports():
             pai_port = cast(ParadoxPort, port)
@@ -317,6 +325,16 @@ class ParadoxAlarm(Peripheral):
             return self._properties.get(type_, {})
         else:
             return self._properties.get(type_, {}).get(id_, {})
+
+    def get_properties_time(self, type_: str, id_: str | int | None) -> int | None:
+        """Return when a property of the given object last changed, in milliseconds."""
+
+        return self._properties_time.get((type_, None if type_ == "system" else id_))
+
+    def get_type_properties_time(self, type_: str) -> int | None:
+        """Return when a property of any object of the given type last changed, in milliseconds."""
+
+        return self._type_properties_time.get(type_)
 
     async def _update_properties(self) -> None:
         changes = []

@@ -131,8 +131,7 @@ class AreaArmedPort(AreaPort):
             await self.get_peripheral().set_area_armed_mode(self.area, self._ARMED_MODE_MAPPING[value])
         except Exception:
             # A rejected request brings no transition, so it would otherwise stay pending forever
-            if self._requested_value == value:
-                self._requested_value = None
+            self._requested_value = None
             raise
 
 

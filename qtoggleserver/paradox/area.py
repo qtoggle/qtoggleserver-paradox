@@ -87,21 +87,22 @@ class AreaArmedPort(AreaPort):
     async def read_value(self) -> NullablePortValue:
         current_state = self.get_property("current_state") or self._DEFAULT_STATE
 
-        # Only act on transitions
-        if current_state != self._last_state:
+        transition = current_state != self._last_state
+        if transition:
             self.debug("state transition: %s -> %s", self._last_state, current_state)
             self._last_state = current_state
 
-            if current_state not in ("pending", "arming"):
-                self._last_non_pending_state = current_state
-                if self._requested_value is not None:  # pending value requested via qToggle
-                    requested_state = self._ARMED_STATE_MAPPING[self._requested_value]
+        if current_state not in ("pending", "arming"):
+            self._last_non_pending_state = current_state
+            if self._requested_value is not None:  # pending value requested via qToggle
+                # A request for the state the panel is already in brings no transition, so it must end here too
+                requested_state = self._ARMED_STATE_MAPPING[self._requested_value]
+                if current_state == requested_state:
+                    self.debug("requested state %s fulfilled", requested_state)
                     self._requested_value = None
-
-                    if current_state == requested_state:
-                        self.debug("requested state %s fulfilled", requested_state)
-                    else:
-                        self.debug("requested state %s not fulfilled", requested_state)
+                elif transition:
+                    self.debug("requested state %s not fulfilled", requested_state)
+                    self._requested_value = None
 
         # Decide upon returned value
         if self._requested_value is not None:
@@ -123,8 +124,15 @@ class AreaArmedPort(AreaPort):
         return None
 
     async def write_value(self, value: PortValue) -> None:
+        # A pending (negative) value requests the same state as its positive counterpart
+        value = abs(value)
         self._requested_value = value
-        await self.get_peripheral().set_area_armed_mode(self.area, self._ARMED_MODE_MAPPING[abs(value)])
+        try:
+            await self.get_peripheral().set_area_armed_mode(self.area, self._ARMED_MODE_MAPPING[value])
+        except Exception:
+            # A rejected request brings no transition, so it would otherwise stay pending forever
+            self._requested_value = None
+            raise
 
 
 class AreaAlarmPort(AreaPort):
